@@ -16,10 +16,7 @@ package com.enotes.Enotes_INDUS.model;
 import com.enotes.Enotes_INDUS.utils.BaseModel;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.boot.autoconfigure.web.WebProperties;
 
-import java.util.Date;
-import java.util.UUID;
 
 
 @Data

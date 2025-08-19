@@ -1,5 +1,7 @@
 package com.enotes.Enotes_INDUS.controller;
 
+import com.enotes.Enotes_INDUS.dto.CategoryDto;
+import com.enotes.Enotes_INDUS.dto.CategoryResponseDto;
 import com.enotes.Enotes_INDUS.model.Category;
 import com.enotes.Enotes_INDUS.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,8 +27,8 @@ public class CategoryController
 
 
     @PostMapping("/save-category")
-    public ResponseEntity<?> saveCategory(@RequestBody Category category){
-         Boolean savedSuccessCategory=categoryService.saveCategory(category);
+    public ResponseEntity<?> saveCategory(@RequestBody CategoryDto categoryDto){
+         Boolean savedSuccessCategory=categoryService.saveCategory(categoryDto);
 
          if(savedSuccessCategory){
 
@@ -39,13 +41,24 @@ public class CategoryController
 
     @GetMapping("/categories")
     public ResponseEntity<?> getAllCategories(){
-            List<Category> allCategories= categoryService.getAllCategory();
+            List<CategoryDto> allCategories= categoryService.getAllCategory();
 
             if(CollectionUtils.isEmpty(allCategories)){
                 return ResponseEntity.noContent().build();
             }
 
-            return new ResponseEntity<>("This is your categories "+ allCategories, HttpStatus.OK);
+            return new ResponseEntity<>("This is your categories "+ allCategories+"/n", HttpStatus.OK);
+    }
+
+    @GetMapping("/active-categories")
+    public ResponseEntity<?> getActiveCategories(){
+        List<CategoryResponseDto> activeCategory= categoryService.getActiveCategory();
+
+        if(CollectionUtils.isEmpty(activeCategory)){
+            return ResponseEntity.noContent().build();
+        }
+
+        return new ResponseEntity<>( activeCategory, HttpStatus.OK);
     }
 
 
