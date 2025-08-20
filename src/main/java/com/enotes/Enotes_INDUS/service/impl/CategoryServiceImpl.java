@@ -2,6 +2,7 @@ package com.enotes.Enotes_INDUS.service.impl;
 
 import com.enotes.Enotes_INDUS.dto.CategoryDto;
 import com.enotes.Enotes_INDUS.dto.CategoryResponseDto;
+import com.enotes.Enotes_INDUS.exceptions.ResourceNotFound;
 import com.enotes.Enotes_INDUS.model.Category;
 import com.enotes.Enotes_INDUS.repository.CategoryRepository;
 import com.enotes.Enotes_INDUS.service.CategoryService;
@@ -27,12 +28,12 @@ public class CategoryServiceImpl implements CategoryService {
 
 
     @Override
-    public CategoryDto getCategoryById(Integer id) {
-        Optional<Category> categoryById = categoryRepository.findByIdAndIsDeletedFalse(id);
+    public CategoryDto getCategoryById(Integer id) throws ResourceNotFound {
+        Category categoryById = categoryRepository.findByIdAndIsDeletedFalse(id).orElseThrow(()->new ResourceNotFound("Category not found from implied exception "));
 
-        if(categoryById.isPresent()){
-            Category category= categoryById.get();
-            return mapper.map(category,CategoryDto.class);
+        if(!ObjectUtils.isEmpty(categoryById)){
+//            Category category= categoryById;
+            return mapper.map(categoryById,CategoryDto.class);
 
 
         }
