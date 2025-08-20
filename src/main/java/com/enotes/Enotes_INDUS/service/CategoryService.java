@@ -8,10 +8,15 @@ import java.util.List;
 
 public interface CategoryService {
 
+
+   public  CategoryDto getCategoryById(Integer id);
+
     public Boolean saveCategory(CategoryDto  categoryDto );
 
     public List<CategoryDto> getAllCategory();
 
 
     List<CategoryResponseDto> getActiveCategory();
+
+    Boolean deleteCategoryById(Integer id);
 }
