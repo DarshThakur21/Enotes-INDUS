@@ -2,8 +2,10 @@ package com.enotes.Enotes_INDUS.controller;
 
 import com.enotes.Enotes_INDUS.dto.CategoryDto;
 import com.enotes.Enotes_INDUS.dto.CategoryResponseDto;
+import com.enotes.Enotes_INDUS.exceptions.ResourceNotFound;
 import com.enotes.Enotes_INDUS.model.Category;
 import com.enotes.Enotes_INDUS.service.CategoryService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +18,7 @@ import java.util.Collection;
 import java.util.List;
 
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/category")
 public class CategoryController
@@ -64,14 +67,43 @@ public class CategoryController
 
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getCategoryDetailsById(@PathVariable Integer id){
+    public ResponseEntity<?> getCategoryDetailsById(@PathVariable Integer id) throws Exception {
+//        try {
+//
+//
+//            CategoryDto categoryDto = categoryService.getCategoryById(id);
+//
+//
+//            if (ObjectUtils.isEmpty(categoryDto)) {
+//                return new ResponseEntity<>("category not found with id= " + id, HttpStatus.NOT_FOUND);
+//            }
+//            return new ResponseEntity<>(categoryDto, HttpStatus.OK);
+//
+//
+//        }
+//        catch(ResourceNotFound e){
+//            log.error("controller :: getCategoryDetailsById ::",e.getMessage());
+//
+//            return new ResponseEntity<>(e.getMessage(),HttpStatus.NOT_FOUND);
+//
+//
+//        } catch (Exception e) {
+//            return new ResponseEntity<>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+
+
+
         CategoryDto categoryDto = categoryService.getCategoryById(id);
 
 
-        if(ObjectUtils.isEmpty(categoryDto)){
-            return new ResponseEntity<>("category not found with id= "+id,HttpStatus.NOT_FOUND);
+        if (ObjectUtils.isEmpty(categoryDto)) {
+            return new ResponseEntity<>("category not found with id= " + id, HttpStatus.NOT_FOUND);
         }
-            return new ResponseEntity<>(categoryDto,HttpStatus.OK);
+        return new ResponseEntity<>(categoryDto, HttpStatus.OK);
+
+
+
+
 
 
     }
