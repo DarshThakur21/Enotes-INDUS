@@ -12,6 +12,7 @@ import org.springframework.util.ObjectUtils;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
@@ -24,6 +25,20 @@ public class CategoryServiceImpl implements CategoryService {
     @Autowired
     private ModelMapper mapper;
 
+
+    @Override
+    public CategoryDto getCategoryById(Integer id) {
+        Optional<Category> categoryById = categoryRepository.findByIdAndIsDeletedFalse(id);
+
+        if(categoryById.isPresent()){
+            Category category= categoryById.get();
+            return mapper.map(category,CategoryDto.class);
+
+
+        }
+
+        return  null;
+    }
 
     @Override
     public Boolean saveCategory(CategoryDto categoryDto) {
@@ -47,17 +62,32 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public List<CategoryDto> getAllCategory() {
             List<Category> allCategory= categoryRepository.findAll();
-           List<CategoryDto> categoryDtoList= allCategory.stream().map(category -> mapper.map(category,CategoryDto.class)).toList();
+           List<CategoryDto> categoryDtoList= allCategory.stream()
+                   .filter(category -> !Boolean.TRUE.equals(category.getIsDeleted()))
+                   .map(category -> mapper.map(category,CategoryDto.class)).toList();
         return categoryDtoList;
 
     }
 
     @Override
     public List<CategoryResponseDto> getActiveCategory() {
-        List<Category> allCategory= categoryRepository.findByIsActiveTrue();
+        List<Category> allCategory= categoryRepository.findByIsActiveTrueAndIsDeletedFalse();
 
         List<CategoryResponseDto> categoryResponseDtoList = allCategory.stream().map(category -> mapper.map(category,CategoryResponseDto.class)).toList();
 
         return categoryResponseDtoList;
+    }
+
+    @Override
+    public Boolean deleteCategoryById(Integer id) {
+        Optional<Category> categoryById =categoryRepository.findById(id);
+        if (categoryById.isPresent()){
+            Category category=categoryById.get();
+            category.setIsDeleted(true);
+            categoryRepository.save(category);
+            mapper.map(category,CategoryDto.class);
+            return true;
+        }
+        return false;
     }
 }
