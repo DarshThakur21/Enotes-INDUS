@@ -6,6 +6,7 @@ import com.enotes.Enotes_INDUS.exceptions.ResourceNotFound;
 import com.enotes.Enotes_INDUS.model.Category;
 import com.enotes.Enotes_INDUS.repository.CategoryRepository;
 import com.enotes.Enotes_INDUS.service.CategoryService;
+import com.enotes.Enotes_INDUS.utils.Validations;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,11 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Autowired
     private ModelMapper mapper;
+
+
+    @Autowired
+    private Validations validations;
+
 
 
     @Override
@@ -48,6 +54,9 @@ public class CategoryServiceImpl implements CategoryService {
 //
 //        category.setName(categoryDto.getName());
 //        category.setIsActive(categoryDto.getIsActive());
+
+
+        validations.categoryValidation(categoryDto);
           Category category= mapper.map(categoryDto,Category.class);
 
           if(ObjectUtils.isEmpty(category.getId())){

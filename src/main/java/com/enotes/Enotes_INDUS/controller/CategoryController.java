@@ -5,6 +5,7 @@ import com.enotes.Enotes_INDUS.dto.CategoryResponseDto;
 import com.enotes.Enotes_INDUS.exceptions.ResourceNotFound;
 import com.enotes.Enotes_INDUS.model.Category;
 import com.enotes.Enotes_INDUS.service.CategoryService;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -31,7 +32,7 @@ public class CategoryController
 
 
     @PostMapping("/save-category")
-    public ResponseEntity<?> saveCategory(@RequestBody CategoryDto categoryDto){
+    public ResponseEntity<?> saveCategory(  @RequestBody CategoryDto categoryDto){
          Boolean savedSuccessCategory=categoryService.saveCategory(categoryDto);
 
          if(savedSuccessCategory){

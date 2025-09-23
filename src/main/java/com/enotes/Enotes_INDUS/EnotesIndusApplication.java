@@ -8,6 +8,7 @@ public class EnotesIndusApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(EnotesIndusApplication.class, args);
+
 	}
 
 }

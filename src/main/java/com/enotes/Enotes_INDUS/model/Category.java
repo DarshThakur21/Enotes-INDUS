@@ -24,8 +24,6 @@ import lombok.*;
 @Getter
 @Setter
 @AllArgsConstructor
-
-
 public class Category extends BaseModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

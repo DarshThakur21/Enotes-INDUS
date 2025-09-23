@@ -1,5 +1,7 @@
 package com.enotes.Enotes_INDUS.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,7 +15,10 @@ import java.util.Date;
 @AllArgsConstructor
 public class CategoryDto {
     private  Integer id;
+
+
     private String name;
+
 
 
     private  Boolean isActive;
