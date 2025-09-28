@@ -2,6 +2,8 @@ package com.enotes.Enotes_INDUS.service.impl;
 
 import com.enotes.Enotes_INDUS.dto.CategoryDto;
 import com.enotes.Enotes_INDUS.dto.CategoryResponseDto;
+import com.enotes.Enotes_INDUS.exceptions.ExistDataException;
+import com.enotes.Enotes_INDUS.exceptions.GlobalExceptionsHandler;
 import com.enotes.Enotes_INDUS.exceptions.ResourceNotFound;
 import com.enotes.Enotes_INDUS.model.Category;
 import com.enotes.Enotes_INDUS.repository.CategoryRepository;
@@ -9,6 +11,7 @@ import com.enotes.Enotes_INDUS.service.CategoryService;
 import com.enotes.Enotes_INDUS.utils.Validations;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
@@ -17,7 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class CategoryServiceImpl implements CategoryService {
+public class CategoryServiceImpl implements CategoryService  {
 
 
     @Autowired
@@ -48,7 +51,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public Boolean saveCategory(CategoryDto categoryDto) {
+    public Boolean saveCategory(CategoryDto categoryDto) throws HttpMessageNotReadableException {
 
 //        Category category=new Category();
 //
@@ -56,13 +59,28 @@ public class CategoryServiceImpl implements CategoryService {
 //        category.setIsActive(categoryDto.getIsActive());
 
 
+
+
         validations.categoryValidation(categoryDto);
+
+          Boolean categoryExists= categoryRepository.existsByName(categoryDto.getName().trim());
+
+          if(categoryExists){
+            throw new ExistDataException("Category already exist");
+          }
+
+
+
           Category category= mapper.map(categoryDto,Category.class);
+
+
+
+
 
           if(ObjectUtils.isEmpty(category.getId())){
               category.setIsDeleted(false);
-              category.setCreatedBy(4);
-              category.setCreatedOn(new Date());
+//              category.setCreatedBy(4);
+//              category.setCreatedOn(new Date());
           }
           else{
               updateCategory(category);
@@ -83,8 +101,8 @@ public class CategoryServiceImpl implements CategoryService {
             category.setIsDeleted(existingCategory.getIsDeleted());
             category.setCreatedBy(existingCategory.getCreatedBy());
             category.setCreatedOn(existingCategory.getCreatedOn());
-            category.setUpdatedBy(1);
-            category.setUpdatedOn(new Date());
+//            category.setUpdatedBy(1);
+//            category.setUpdatedOn(new Date());
 
         }
 

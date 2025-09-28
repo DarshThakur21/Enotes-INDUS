@@ -16,7 +16,7 @@ package com.enotes.Enotes_INDUS.model;
 import com.enotes.Enotes_INDUS.utils.BaseModel;
 import jakarta.persistence.*;
 import lombok.*;
-
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 
 @Data
@@ -24,12 +24,20 @@ import lombok.*;
 @Getter
 @Setter
 @AllArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 public class Category extends BaseModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private  Integer id;
     private String name;
+
+    private  Boolean isActive;
+    private  Boolean isDeleted;
+
     public Category(){}
+
+
+
 
 
 
