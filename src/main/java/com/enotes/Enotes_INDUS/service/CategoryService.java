@@ -9,10 +9,10 @@ import java.util.List;
 
 public interface CategoryService {
 
+    public Boolean saveCategory(CategoryDto  categoryDto );
 
    public  CategoryDto getCategoryById(Integer id) throws ResourceNotFound;
 
-    public Boolean saveCategory(CategoryDto  categoryDto );
 
     public List<CategoryDto> getAllCategory();
 

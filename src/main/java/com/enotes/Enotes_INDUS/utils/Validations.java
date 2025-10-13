@@ -1,6 +1,7 @@
 package com.enotes.Enotes_INDUS.utils;
 
 import com.enotes.Enotes_INDUS.dto.CategoryDto;
+import com.enotes.Enotes_INDUS.dto.NotesDto;
 import com.enotes.Enotes_INDUS.exceptions.ValidationException;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
@@ -38,5 +39,34 @@ public class Validations {
         }
 
     }
+
+    public void notesValidation(NotesDto notesDto){
+
+        Map<String, Object> error = new HashMap<>();
+        if(ObjectUtils.isEmpty(notesDto)){
+            throw new IllegalArgumentException("Notes object/json not present it shouldnt be null or empty");
+
+        }else{
+            if(ObjectUtils.isEmpty(notesDto.getTitle())){
+             error.put("Title","Title is not present");
+            }
+            if(ObjectUtils.isEmpty(notesDto.getDescription())){
+                error.put("Description","Description is not present");
+
+            }
+
+//            if (!ObjectUtils.isEmpty(notesDto.getCategory())){
+//                categoryValidation(notesDto.getCategory());
+//            }
+
+
+        }
+        if (!error.isEmpty()){
+            throw new ValidationException(error);
+        }
+    }
+
+
+
 }
 
