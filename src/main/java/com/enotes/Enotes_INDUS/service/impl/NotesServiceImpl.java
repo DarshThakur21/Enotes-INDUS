@@ -97,39 +97,26 @@ public class NotesServiceImpl implements NotesService {
         if(!ObjectUtils.isEmpty(file) &&   !file.isEmpty()){
             String originalFileName=file.getOriginalFilename();
             String extension= FilenameUtils.getExtension(originalFileName);
-
+            String randomString= UUID.randomUUID().toString();
+            String uploadFileName=randomString+"."+extension;
 
             List<String> extentions= Arrays.asList("jpg","png","pdf","xlsx","docx");
             if(!extentions.contains(extension)){
                 throw new IllegalArgumentException("invalid file format: only upload .jpg .png .pdf .xlsx");
             }
-
-
-            FileDetails fileDetails=new FileDetails();
-
-
-            fileDetails.setOriginalFileName(originalFileName);
-
-            fileDetails.setDisplayFileName(displayname(originalFileName));
-
-            String randomString= UUID.randomUUID().toString();
-
-            String uploadFileName=randomString+"."+extension;
-
-            fileDetails.setUploadFileName(uploadFileName);
-
-            fileDetails.setFileSize(file.getSize());
-
             File saveFile=new File(uploadPath);
-
             if(!saveFile.exists()){
                 saveFile.mkdir();
             }
             String storepath=uploadPath.concat(uploadFileName);
-            fileDetails.setFilePath(storepath);
             long upload=Files.copy(file.getInputStream(), Paths.get(storepath));
-
             if(upload!=0){
+                FileDetails fileDetails=new FileDetails();
+                fileDetails.setOriginalFileName(originalFileName);
+                fileDetails.setDisplayFileName(displayname(originalFileName));
+                fileDetails.setUploadFileName(uploadFileName);
+                fileDetails.setFileSize(file.getSize());
+                fileDetails.setFilePath(storepath);
                 FileDetails savedFileDetails= fileRepository.save(fileDetails);
 
                 return  savedFileDetails;
