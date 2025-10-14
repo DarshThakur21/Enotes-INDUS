@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -37,8 +38,8 @@ public class NotesController {
 
 
     @PostMapping("/save-notes")
-    public ResponseEntity<?>  saveNotes(@Valid @RequestBody NotesDto notesDto) throws Exception {
-        Boolean savedSuccessNotes=notesService.saveNotes(notesDto);
+    public ResponseEntity<?>  saveNotes(@RequestParam String notes,@RequestParam (required = false) MultipartFile file) throws Exception {
+        Boolean savedSuccessNotes=notesService.saveNotes(notes,file);
         if (!savedSuccessNotes){
 //            return   new ResponseEntity<>("your notes is not saved", HttpStatus.INTERNAL_SERVER_ERROR);
 

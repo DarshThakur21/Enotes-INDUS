@@ -5,19 +5,29 @@ import com.enotes.Enotes_INDUS.dto.NotesDto;
 import com.enotes.Enotes_INDUS.exceptions.ExistDataException;
 import com.enotes.Enotes_INDUS.exceptions.ResourceNotFound;
 import com.enotes.Enotes_INDUS.model.Category;
+import com.enotes.Enotes_INDUS.model.FileDetails;
 import com.enotes.Enotes_INDUS.model.Notes;
 import com.enotes.Enotes_INDUS.repository.CategoryRepository;
+import com.enotes.Enotes_INDUS.repository.FileDetailsRepository;
 import com.enotes.Enotes_INDUS.repository.NotesRepository;
 import com.enotes.Enotes_INDUS.service.NotesService;
 import com.enotes.Enotes_INDUS.utils.Validations;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Array;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.*;
 
 
 @Service
@@ -28,11 +38,17 @@ public class NotesServiceImpl implements NotesService {
     private NotesRepository notesRepository;
 
     @Autowired
+    private FileDetailsRepository fileRepository;
+
+
+    @Autowired
     private ModelMapper mapper;
 
     @Autowired
     private Validations validations;
 
+    @Value("${file.upload.path}")
+    private String uploadPath;
 
 
     @Autowired
@@ -40,40 +56,106 @@ public class NotesServiceImpl implements NotesService {
 
 
     @Override
-    public Boolean saveNotes(NotesDto notesDto) throws Exception {
+    public Boolean saveNotes(String notesString, MultipartFile file) throws Exception {
+        ObjectMapper objectMapper=new ObjectMapper();
+        NotesDto notesDto=objectMapper.readValue(notesString,NotesDto.class);
+
+
+
 
 //category valdation
         checkCategoryExist(notesDto.getCategory());
-
-
-
 //        Optional<Notes> noteExists=notesRepository.findById(notesDto.getId());
 //        if(noteExists.isPresent()){
 //            throw new ExistDataException("note already exist");
 //
 //        }
         validations.notesValidation(notesDto);
-
         Boolean noteExist=notesRepository.existsByTitleAndCategoryId(notesDto.getTitle(), notesDto.getCategory().getId());
+        if (noteExist){throw new ExistDataException("note already exist");}
 
-        if (noteExist){
 
-            throw new ExistDataException("note already exist");
+        Notes notes=mapper.map(notesDto, Notes.class);
+
+        FileDetails fileDetails=saveFileDetails(file);
+
+        if(!ObjectUtils.isEmpty(fileDetails)){
+            notes.setFileDetails(fileDetails);
+        }else{
+            notes.setFileDetails(null );
+
         }
-
-
-
-      Notes notes=mapper.map(notesDto, Notes.class);
-
-
-//      if(ObjectUtils.isEmpty(notes.getId())){}
-
-
-
 
        Notes savedNotes= notesRepository.save(notes);
     return  !ObjectUtils.isEmpty(savedNotes);
     }
+
+
+
+
+    private FileDetails saveFileDetails(MultipartFile file) throws IOException {
+        if(!ObjectUtils.isEmpty(file) &&   !file.isEmpty()){
+            String originalFileName=file.getOriginalFilename();
+            String extension= FilenameUtils.getExtension(originalFileName);
+
+
+            List<String> extentions= Arrays.asList("jpg","png","pdf","xlsx","docx");
+            if(!extentions.contains(extension)){
+                throw new IllegalArgumentException("invalid file format: only upload .jpg .png .pdf .xlsx");
+            }
+
+
+            FileDetails fileDetails=new FileDetails();
+
+
+            fileDetails.setOriginalFileName(originalFileName);
+
+            fileDetails.setDisplayFileName(displayname(originalFileName));
+
+            String randomString= UUID.randomUUID().toString();
+
+            String uploadFileName=randomString+"."+extension;
+
+            fileDetails.setUploadFileName(uploadFileName);
+
+            fileDetails.setFileSize(file.getSize());
+
+            File saveFile=new File(uploadPath);
+
+            if(!saveFile.exists()){
+                saveFile.mkdir();
+            }
+            String storepath=uploadPath.concat(uploadFileName);
+            fileDetails.setFilePath(storepath);
+            long upload=Files.copy(file.getInputStream(), Paths.get(storepath));
+
+            if(upload!=0){
+                FileDetails savedFileDetails= fileRepository.save(fileDetails);
+
+                return  savedFileDetails;
+            }else{
+                return null;
+            }
+
+
+
+        }
+
+        return null;
+
+
+    }
+
+    private String displayname(String originalFileName) {
+        String extension= FilenameUtils.getExtension(originalFileName);
+        String fileName=FilenameUtils.removeExtension(originalFileName);
+            if(fileName.length()>8){
+                fileName=fileName.substring(0,7);
+            }
+
+        return fileName+"."+extension;
+    }
+
 
     private void checkCategoryExist(NotesDto.CategoryDto category) throws ResourceNotFound {
 
