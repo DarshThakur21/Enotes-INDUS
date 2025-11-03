@@ -20,10 +20,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.StreamUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Array;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -100,7 +103,7 @@ public class NotesServiceImpl implements NotesService {
             String randomString= UUID.randomUUID().toString();
             String uploadFileName=randomString+"."+extension;
 
-            List<String> extentions= Arrays.asList("jpg","png","pdf","xlsx","docx");
+            List<String> extentions= Arrays.asList("jpg","png","pdf","xlsx","docx","txt");
             if(!extentions.contains(extension)){
                 throw new IllegalArgumentException("invalid file format: only upload .jpg .png .pdf .xlsx");
             }
@@ -109,7 +112,7 @@ public class NotesServiceImpl implements NotesService {
                 saveFile.mkdir();
             }
             String storepath=uploadPath.concat(uploadFileName);
-            long upload=Files.copy(file.getInputStream(), Paths.get(storepath));
+            long upload=Files.copy(file.getInputStream(), Paths.get(storepath)); //converting the files to store into the folder
             if(upload!=0){
                 FileDetails fileDetails=new FileDetails();
                 fileDetails.setOriginalFileName(originalFileName);
@@ -133,6 +136,7 @@ public class NotesServiceImpl implements NotesService {
 
     }
 
+//    Helper function for saveFileDetails
     private String displayname(String originalFileName) {
         String extension= FilenameUtils.getExtension(originalFileName);
         String fileName=FilenameUtils.removeExtension(originalFileName);
@@ -143,7 +147,7 @@ public class NotesServiceImpl implements NotesService {
         return fileName+"."+extension;
     }
 
-
+    //    Helper function for saveFileDetails
     private void checkCategoryExist(NotesDto.CategoryDto category) throws ResourceNotFound {
 
         categoryRepository.findById(category.getId()).orElseThrow(()->new ResourceNotFound("categpry id is invalid"));
@@ -160,5 +164,23 @@ public class NotesServiceImpl implements NotesService {
                 .map(notes -> mapper.map(notes, NotesDto.class)).toList();
         return notesDtoList;
 //        return notesRepository.findAll().stream().map(notes -> mapper.map(notes, NotesDto.class)).toList();
+    }
+
+
+
+    @Override
+    public byte[] downloadFile(FileDetails fileDetails) throws Exception {
+
+        InputStream inputStream=new FileInputStream(fileDetails.getFilePath());
+        byte[] byteData= StreamUtils.copyToByteArray(inputStream);
+
+            return byteData;
+    }
+
+    @Override
+    public FileDetails getFileDetails(Integer id) throws Exception{
+        FileDetails fileDetails= fileRepository.findById(id).orElseThrow(()->new ResourceNotFound("File is not available"));
+
+        return fileDetails;
     }
 }

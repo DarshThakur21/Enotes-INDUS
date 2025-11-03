@@ -2,12 +2,15 @@ package com.enotes.Enotes_INDUS.controller;
 
 
 import com.enotes.Enotes_INDUS.dto.NotesDto;
+import com.enotes.Enotes_INDUS.model.FileDetails;
 import com.enotes.Enotes_INDUS.service.NotesService;
 import com.enotes.Enotes_INDUS.utils.CommonUtil;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
@@ -51,6 +54,21 @@ public class NotesController {
 //        return  new ResponseEntity<>("your notes is saved", HttpStatus.CREATED);
 
         return CommonUtil.createBuildResponseMessage("Saved Success",HttpStatus.CREATED);
+    }
+
+
+
+    @GetMapping("/download/{id}")
+    public ResponseEntity<?> downloadFile(@PathVariable Integer id) throws Exception{
+
+        FileDetails fileDetails=notesService.getFileDetails(id);
+        byte[] downloadFile     =  notesService.downloadFile(fileDetails);
+
+        HttpHeaders headers =new HttpHeaders();
+        String contentType=CommonUtil.getContentType(fileDetails.getOriginalFileName());
+        headers.setContentType(MediaType.parseMediaType(contentType));
+        headers.setContentDispositionFormData("attachment",fileDetails.getOriginalFileName());
+        return   ResponseEntity.ok().headers(headers).body(downloadFile);
     }
 
 

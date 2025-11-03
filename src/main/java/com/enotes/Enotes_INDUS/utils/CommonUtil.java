@@ -1,7 +1,9 @@
 package com.enotes.Enotes_INDUS.utils;
 
 import com.enotes.Enotes_INDUS.handler.GenericResponse;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
 public class CommonUtil {
@@ -49,7 +51,24 @@ public class CommonUtil {
     }
 
 
-
-
-
+    public static String getContentType(String originalFileName) {
+        String extension= FilenameUtils.getExtension(originalFileName);
+//        List<String> extentions= Arrays.asList("jpg","png","pdf","xlsx","docx");
+        switch (extension){
+            case "pdf":
+                return "applicaton/pdf";
+            case "jpg":
+                return "image/jpg";
+            case "png":
+                return "image/png";
+            case "xlsx":
+                return "applicaton/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+            case "docx":
+                return "applicaton/vnd.openxmlformats-officedocument.wordprocessingml.document";
+            case "txt":
+                return "text/plain";
+            default:
+                return "application/octet-stream";
+        }
+    }
 }
