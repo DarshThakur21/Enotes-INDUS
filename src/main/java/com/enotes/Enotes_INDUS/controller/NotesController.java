@@ -2,6 +2,7 @@ package com.enotes.Enotes_INDUS.controller;
 
 
 import com.enotes.Enotes_INDUS.dto.NotesDto;
+import com.enotes.Enotes_INDUS.dto.NotesResponseDto;
 import com.enotes.Enotes_INDUS.model.FileDetails;
 import com.enotes.Enotes_INDUS.service.NotesService;
 import com.enotes.Enotes_INDUS.utils.CommonUtil;
@@ -37,6 +38,17 @@ public class NotesController {
 //        return new ResponseEntity<>(notesDtoList, HttpStatus.OK);
         return CommonUtil.createBuildResponse( notesDtoList, HttpStatus.OK);
 
+    }
+
+
+
+//    going to be with authentication and session
+    @GetMapping("/user-notes")
+    public ResponseEntity<?> getAllNotesByUser(@RequestParam (name = "pageNo",defaultValue = "0") Integer pageNo,
+                                               @RequestParam (name = "pageSize",defaultValue = "5") Integer pageSize){
+        Integer userId=1;
+        NotesResponseDto notesDtoList=notesService.getAllNotesByUser(userId,pageNo,pageSize);
+     return CommonUtil.createBuildResponse(notesDtoList,HttpStatus.OK);
     }
 
 

@@ -1,10 +1,9 @@
 package com.enotes.Enotes_INDUS.service.impl;
 
-import com.enotes.Enotes_INDUS.dto.CategoryDto;
 import com.enotes.Enotes_INDUS.dto.NotesDto;
+import com.enotes.Enotes_INDUS.dto.NotesResponseDto;
 import com.enotes.Enotes_INDUS.exceptions.ExistDataException;
 import com.enotes.Enotes_INDUS.exceptions.ResourceNotFound;
-import com.enotes.Enotes_INDUS.model.Category;
 import com.enotes.Enotes_INDUS.model.FileDetails;
 import com.enotes.Enotes_INDUS.model.Notes;
 import com.enotes.Enotes_INDUS.repository.CategoryRepository;
@@ -13,11 +12,13 @@ import com.enotes.Enotes_INDUS.repository.NotesRepository;
 import com.enotes.Enotes_INDUS.service.NotesService;
 import com.enotes.Enotes_INDUS.utils.Validations;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StreamUtils;
@@ -27,7 +28,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Array;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
@@ -165,6 +165,31 @@ public class NotesServiceImpl implements NotesService {
         return notesDtoList;
 //        return notesRepository.findAll().stream().map(notes -> mapper.map(notes, NotesDto.class)).toList();
     }
+    @Override
+    public NotesResponseDto getAllNotesByUser(Integer userId,Integer pageNo,Integer pageSize) {
+
+//        Pagination concept
+        Pageable pageable =PageRequest.of(pageNo,pageSize);
+
+        Page<Notes> notesList=notesRepository.findByCreatedBy(userId,pageable);
+
+                  List<NotesDto> notesDtoList=notesList.stream()
+                          .map(notes -> mapper.map(notes,NotesDto.class)).toList();
+
+        NotesResponseDto responseDto=NotesResponseDto.builder()
+                .notesDtoList(notesDtoList)
+                .pageNo(notesList.getNumber())
+                .pageSize(notesList.getSize())
+                .totalElements( notesList.getTotalElements())
+                .totalPages(notesList.getTotalPages())
+                .isFirst(notesList.isFirst())
+                .islast(notesList.isLast())
+        .build();
+
+
+
+        return responseDto;
+    }
 
 
 
@@ -183,4 +208,6 @@ public class NotesServiceImpl implements NotesService {
 
         return fileDetails;
     }
+
+
 }
