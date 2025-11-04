@@ -52,21 +52,26 @@ public class NotesController {
     }
 
 
+
+
     @PostMapping("/save-notes")
     public ResponseEntity<?>  saveNotes(@RequestParam String notes,@RequestParam (required = false) MultipartFile file) throws Exception {
         Boolean savedSuccessNotes=notesService.saveNotes(notes,file);
         if (!savedSuccessNotes){
-//            return   new ResponseEntity<>("your notes is not saved", HttpStatus.INTERNAL_SERVER_ERROR);
+
 
             return CommonUtil.createErrorResponseMessage("NotSaved",HttpStatus.INTERNAL_SERVER_ERROR);
 
         }
 
 
-//        return  new ResponseEntity<>("your notes is saved", HttpStatus.CREATED);
+
 
         return CommonUtil.createBuildResponseMessage("Saved Success",HttpStatus.CREATED);
     }
+
+
+
 
 
 
@@ -82,6 +87,11 @@ public class NotesController {
         headers.setContentDispositionFormData("attachment",fileDetails.getOriginalFileName());
         return   ResponseEntity.ok().headers(headers).body(downloadFile);
     }
+
+
+
+
+
 
 
 

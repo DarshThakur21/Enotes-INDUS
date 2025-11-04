@@ -4,6 +4,7 @@ import com.enotes.Enotes_INDUS.dto.NotesDto;
 import com.enotes.Enotes_INDUS.dto.NotesResponseDto;
 import com.enotes.Enotes_INDUS.exceptions.ExistDataException;
 import com.enotes.Enotes_INDUS.exceptions.ResourceNotFound;
+import com.enotes.Enotes_INDUS.model.Category;
 import com.enotes.Enotes_INDUS.model.FileDetails;
 import com.enotes.Enotes_INDUS.model.Notes;
 import com.enotes.Enotes_INDUS.repository.CategoryRepository;
@@ -63,6 +64,15 @@ public class NotesServiceImpl implements NotesService {
         ObjectMapper objectMapper=new ObjectMapper();
         NotesDto notesDto=objectMapper.readValue(notesString,NotesDto.class);
 
+//trying to update save and update in one single api
+        if(!ObjectUtils.isEmpty(notesDto.getId())){
+        Notes updatedNote = updateNotes(notesDto, file);
+            notesRepository.save(updatedNote);
+            return true;
+
+        }
+
+
 
 
 
@@ -85,7 +95,11 @@ public class NotesServiceImpl implements NotesService {
         if(!ObjectUtils.isEmpty(fileDetails)){
             notes.setFileDetails(fileDetails);
         }else{
+            if(ObjectUtils.isEmpty(notesDto.getId())){
+//                updateNotes(notesDto,file);
             notes.setFileDetails(null );
+
+            }
 
         }
 
@@ -94,6 +108,29 @@ public class NotesServiceImpl implements NotesService {
     }
 
 
+
+//To update save and update in one single api
+    private Notes updateNotes(NotesDto notesDto, MultipartFile file) throws ResourceNotFound, IOException {
+            Notes existNote=notesRepository.findById(notesDto.getId()).orElseThrow(()->new ResourceNotFound("Invalid notes id"));
+
+
+        existNote.setTitle(notesDto.getTitle());
+        existNote.setDescription(notesDto.getDescription());
+        existNote.setCategory(mapper.map(notesDto.getCategory(), Category.class));
+        existNote.setUpdatedOn(new Date());
+        existNote.setUpdatedBy(notesDto.getUpdatedBy());
+
+        if (!ObjectUtils.isEmpty(file) && !file.isEmpty()) {
+            FileDetails fileDetails = saveFileDetails(file);
+            existNote.setFileDetails(fileDetails);
+        } else {
+            // retain old file
+            existNote.setFileDetails(existNote.getFileDetails());
+        }
+
+        return existNote;
+
+    }
 
 
     private FileDetails saveFileDetails(MultipartFile file) throws IOException {
