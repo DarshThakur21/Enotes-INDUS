@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.util.Date;
+
 
 @Data
 @Entity
@@ -27,6 +29,11 @@ public class Notes extends BaseModel {
     @ManyToOne
     private FileDetails fileDetails;
 
+    @Column(name = "is_deleted")
+    private Boolean isDeleted;
+
+    @Column(name = "deleted_on")
+    private Date deletedOn;
 //    private Integer userId;
 
 

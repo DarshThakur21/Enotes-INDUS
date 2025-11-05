@@ -21,4 +21,8 @@ public interface NotesService {
     FileDetails getFileDetails(Integer id) throws Exception;
 
     NotesResponseDto getAllNotesByUser(Integer userId,Integer pageNo,Integer pageSize);
+
+    void deleteNotes(Integer id) throws ResourceNotFound;
+
+    void restoreNote(Integer id) throws ResourceNotFound;
 }

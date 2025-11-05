@@ -3,6 +3,7 @@ package com.enotes.Enotes_INDUS.controller;
 
 import com.enotes.Enotes_INDUS.dto.NotesDto;
 import com.enotes.Enotes_INDUS.dto.NotesResponseDto;
+import com.enotes.Enotes_INDUS.exceptions.ResourceNotFound;
 import com.enotes.Enotes_INDUS.model.FileDetails;
 import com.enotes.Enotes_INDUS.service.NotesService;
 import com.enotes.Enotes_INDUS.utils.CommonUtil;
@@ -70,6 +71,19 @@ public class NotesController {
         return CommonUtil.createBuildResponseMessage("Saved Success",HttpStatus.CREATED);
     }
 
+    @GetMapping("/delete/{id}")
+    public ResponseEntity<?> deleteNote(@PathVariable Integer id) throws ResourceNotFound {
+        notesService.deleteNotes(id);
+        return CommonUtil.createBuildResponseMessage("Delete Success ",HttpStatus.OK);
+    }
+
+    @GetMapping("/restore/{id}")
+    public ResponseEntity<?> restoreNote(@PathVariable Integer id) throws ResourceNotFound {
+        notesService.restoreNote(id);
+        return CommonUtil.createBuildResponseMessage("restore Success ",HttpStatus.OK);
+
+    }
+
 
 
 
@@ -87,10 +101,6 @@ public class NotesController {
         headers.setContentDispositionFormData("attachment",fileDetails.getOriginalFileName());
         return   ResponseEntity.ok().headers(headers).body(downloadFile);
     }
-
-
-
-
 
 
 

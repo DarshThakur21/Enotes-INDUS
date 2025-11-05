@@ -21,6 +21,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -228,6 +229,26 @@ public class NotesServiceImpl implements NotesService {
         return responseDto;
     }
 
+    @Override
+    public void deleteNotes(Integer id) throws ResourceNotFound {
+        Notes existNotes= notesRepository.findById(id).orElseThrow(()-> new ResourceNotFound("Notes id invalid"));
+
+        existNotes.setIsDeleted(Boolean.TRUE);
+        existNotes.setDeletedOn(new Date());
+        notesRepository.save(existNotes);
+
+    }
+
+
+    @Override
+    public void restoreNote(Integer id) throws ResourceNotFound {
+        Notes existNotes = notesRepository.findById(id).orElseThrow(()-> new ResourceNotFound("Notes id invalid"));
+
+        existNotes.setIsDeleted(Boolean.FALSE);
+        existNotes.setDeletedOn(null);
+        notesRepository.save(existNotes);
+
+    }
 
 
     @Override
@@ -245,6 +266,5 @@ public class NotesServiceImpl implements NotesService {
 
         return fileDetails;
     }
-
 
 }
