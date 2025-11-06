@@ -25,4 +25,6 @@ public interface NotesService {
     void deleteNotes(Integer id) throws ResourceNotFound;
 
     void restoreNote(Integer id) throws ResourceNotFound;
+
+    List<NotesDto> getUserRecycleBinNotes(Integer userId);
 }

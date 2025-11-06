@@ -103,6 +103,21 @@ public class NotesController {
     }
 
 
+    @GetMapping("/recycle")
+    public ResponseEntity<?> getUserRecycleBinNotes()  throws  Exception{
+        Integer userId=1;
+        List<NotesDto> notesDtoList=  notesService.getUserRecycleBinNotes(userId);
+
+        if(notesDtoList.isEmpty()){
+            return CommonUtil.createBuildResponseMessage("no Notes in the recycle bin",HttpStatus.OK);
+        }
+        return CommonUtil.createBuildResponse(notesDtoList,HttpStatus.OK);
+
+    }
+
+
+
+
 
 
 }

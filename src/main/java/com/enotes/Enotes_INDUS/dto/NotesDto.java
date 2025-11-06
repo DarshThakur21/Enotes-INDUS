@@ -1,6 +1,7 @@
 package com.enotes.Enotes_INDUS.dto;
 
 import com.enotes.Enotes_INDUS.model.Category;
+import jakarta.persistence.Column;
 import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -32,6 +33,12 @@ public class NotesDto  {
     private Date createdOn;
     private Integer updatedBy;
     private Date updatedOn;
+
+    private Boolean isDeleted;
+
+
+    private Date deletedOn;
+
 
     private FileDetailsDto fileDetails;
 

@@ -21,7 +21,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -64,6 +63,8 @@ public class NotesServiceImpl implements NotesService {
     public Boolean saveNotes(String notesString, MultipartFile file) throws Exception {
         ObjectMapper objectMapper=new ObjectMapper();
         NotesDto notesDto=objectMapper.readValue(notesString,NotesDto.class);
+        notesDto.setIsDeleted(Boolean.FALSE);
+        notesDto.setDeletedOn(null);
 
 //trying to update save and update in one single api
         if(!ObjectUtils.isEmpty(notesDto.getId())){
@@ -209,7 +210,7 @@ public class NotesServiceImpl implements NotesService {
 //        Pagination concept
         Pageable pageable =PageRequest.of(pageNo,pageSize);
 
-        Page<Notes> notesList=notesRepository.findByCreatedBy(userId,pageable);
+        Page<Notes> notesList=notesRepository.findByCreatedByAndIsDeletedFalse(userId,pageable);
 
                   List<NotesDto> notesDtoList=notesList.stream()
                           .map(notes -> mapper.map(notes,NotesDto.class)).toList();
@@ -248,6 +249,14 @@ public class NotesServiceImpl implements NotesService {
         existNotes.setDeletedOn(null);
         notesRepository.save(existNotes);
 
+    }
+
+    @Override
+    public List<NotesDto> getUserRecycleBinNotes(Integer userId) {
+      List<Notes> notesListRecycle =  notesRepository.findByCreatedByAndIsDeletedTrue(userId);
+        List<NotesDto> notesDtoListRecycle= notesListRecycle.stream().map(notes -> mapper.map(notes,NotesDto.class)).toList();
+
+        return  notesDtoListRecycle;
     }
 
 
