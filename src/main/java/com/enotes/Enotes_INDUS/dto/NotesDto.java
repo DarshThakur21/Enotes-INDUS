@@ -8,6 +8,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 
@@ -37,7 +39,7 @@ public class NotesDto  {
     private Boolean isDeleted;
 
 
-    private Date deletedOn;
+    private LocalDateTime deletedOn;
 
 
     private FileDetailsDto fileDetails;

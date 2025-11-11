@@ -21,6 +21,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -31,6 +32,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 
@@ -235,7 +238,7 @@ public class NotesServiceImpl implements NotesService {
         Notes existNotes= notesRepository.findById(id).orElseThrow(()-> new ResourceNotFound("Notes id invalid"));
 
         existNotes.setIsDeleted(Boolean.TRUE);
-        existNotes.setDeletedOn(new Date());
+        existNotes.setDeletedOn(LocalDateTime.now());
         notesRepository.save(existNotes);
 
     }
@@ -257,6 +260,28 @@ public class NotesServiceImpl implements NotesService {
         List<NotesDto> notesDtoListRecycle= notesListRecycle.stream().map(notes -> mapper.map(notes,NotesDto.class)).toList();
 
         return  notesDtoListRecycle;
+    }
+
+    @Override
+    public void deleteNotesFromRecycle(Integer id) throws ResourceNotFound {
+        Notes existNotes= notesRepository.findById(id).orElseThrow(()-> new ResourceNotFound("Notes id invalid"));
+
+            if(existNotes.getIsDeleted()){
+                notesRepository.deleteById(id);
+            }else{
+                throw new IllegalArgumentException("cant hard delete directly notes");
+            }
+    }
+
+    @Override
+    public void deleteAllFromRecycle(int userId) {
+        List<Notes> deleteNoteList=notesRepository.findByCreatedByAndIsDeletedTrue(userId);
+        if(!CollectionUtils.isEmpty(deleteNoteList)){
+            notesRepository.deleteAll(deleteNoteList);
+        }
+        else{
+            throw new RuntimeException("alredy empty recycle");
+        }
     }
 
 

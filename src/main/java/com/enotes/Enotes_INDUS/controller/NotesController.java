@@ -115,6 +115,23 @@ public class NotesController {
 
     }
 
+    @DeleteMapping("/recycle/delete/{id}")
+    public ResponseEntity<?> deleteNoteFromRecycle(@PathVariable Integer id) throws ResourceNotFound {
+        notesService.deleteNotesFromRecycle(id);
+        return CommonUtil.createBuildResponseMessage("Hard Delete Success ",HttpStatus.OK);
+    }
+
+    @DeleteMapping("/recycle/deleteAll")
+    public ResponseEntity<?> deleteNoteFromRecycle() throws ResourceNotFound {
+        int userId=1;
+        notesService.deleteAllFromRecycle(userId);
+        return CommonUtil.createBuildResponseMessage("Recycle bin delete Success ",HttpStatus.OK);
+    }
+
+
+
+
+
 
 
 
