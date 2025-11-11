@@ -147,6 +147,10 @@ public class NotesController {
     public ResponseEntity<?> allFavouriteNotes() throws ResourceNotFound {
 
        List<FavouriteNotesDto> favouriteNotesDtoList= notesService.allFavouriteNotes();
+       if(CollectionUtils.isEmpty(favouriteNotesDtoList)){
+
+        return CommonUtil.createErrorResponseMessage("List not found",HttpStatus.NOT_FOUND);
+       }
 
         return CommonUtil.createBuildResponse(favouriteNotesDtoList,HttpStatus.OK);
     }
