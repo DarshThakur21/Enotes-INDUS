@@ -1,13 +1,16 @@
 package com.enotes.Enotes_INDUS.service.impl;
 
+import com.enotes.Enotes_INDUS.dto.FavouriteNotesDto;
 import com.enotes.Enotes_INDUS.dto.NotesDto;
 import com.enotes.Enotes_INDUS.dto.NotesResponseDto;
 import com.enotes.Enotes_INDUS.exceptions.ExistDataException;
 import com.enotes.Enotes_INDUS.exceptions.ResourceNotFound;
 import com.enotes.Enotes_INDUS.model.Category;
+import com.enotes.Enotes_INDUS.model.FavouriteNotes;
 import com.enotes.Enotes_INDUS.model.FileDetails;
 import com.enotes.Enotes_INDUS.model.Notes;
 import com.enotes.Enotes_INDUS.repository.CategoryRepository;
+import com.enotes.Enotes_INDUS.repository.FavouriteNotesRepository;
 import com.enotes.Enotes_INDUS.repository.FileDetailsRepository;
 import com.enotes.Enotes_INDUS.repository.NotesRepository;
 import com.enotes.Enotes_INDUS.service.NotesService;
@@ -47,6 +50,8 @@ public class NotesServiceImpl implements NotesService {
     @Autowired
     private FileDetailsRepository fileRepository;
 
+    @Autowired
+    private FavouriteNotesRepository favouriteNotesRepository;
 
     @Autowired
     private ModelMapper mapper;
@@ -282,6 +287,42 @@ public class NotesServiceImpl implements NotesService {
         else{
             throw new RuntimeException("alredy empty recycle");
         }
+    }
+
+    @Override
+    public void favouriteNotes(Integer notesId) throws ResourceNotFound {
+        int userId=1;
+        Notes existNotes=notesRepository.findById(notesId).orElseThrow(()->new ResourceNotFound("notes id invalid notes not found"));
+        FavouriteNotes favouriteNotes=FavouriteNotes.builder()
+                .notes(existNotes)
+                .userId(userId)
+                .build();
+        favouriteNotesRepository.save(favouriteNotes);
+
+    }
+
+    @Override
+    public void unFavouriteNotes(Integer favNotesId) throws ResourceNotFound {
+        FavouriteNotes existFavouriteNotes=favouriteNotesRepository.findById(favNotesId).orElseThrow(()->new ResourceNotFound("fav notes id invalid notes not found"));
+        favouriteNotesRepository.delete(existFavouriteNotes);
+
+    }
+
+    @Override
+    public List<FavouriteNotesDto> allFavouriteNotes() {
+       Integer userId=1;
+
+       List<FavouriteNotes> favouriteNotesList= favouriteNotesRepository.findByUserId(userId);
+        List<FavouriteNotesDto> favouriteNotesDtoList = favouriteNotesList.stream()
+                .map(fav -> {
+                    FavouriteNotesDto dto = mapper.map(fav, FavouriteNotesDto.class);
+                    // manually map nested Notes → NotesDto
+                    dto.setNotesDto(mapper.map(fav.getNotes(), NotesDto.class));
+                    return dto;
+                })
+                .toList();
+        return favouriteNotesDtoList;
+
     }
 
 

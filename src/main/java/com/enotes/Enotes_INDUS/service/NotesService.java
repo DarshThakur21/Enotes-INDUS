@@ -1,9 +1,12 @@
 package com.enotes.Enotes_INDUS.service;
 
+import com.enotes.Enotes_INDUS.dto.FavouriteNotesDto;
 import com.enotes.Enotes_INDUS.dto.NotesDto;
 import com.enotes.Enotes_INDUS.dto.NotesResponseDto;
 import com.enotes.Enotes_INDUS.exceptions.ResourceNotFound;
+import com.enotes.Enotes_INDUS.model.FavouriteNotes;
 import com.enotes.Enotes_INDUS.model.FileDetails;
+import com.enotes.Enotes_INDUS.model.Notes;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -31,4 +34,10 @@ public interface NotesService {
     void deleteNotesFromRecycle(Integer id) throws ResourceNotFound;
 
     void deleteAllFromRecycle(int userId);
+
+    void favouriteNotes(Integer notesId) throws ResourceNotFound;
+
+    void unFavouriteNotes(Integer notesId) throws ResourceNotFound;
+
+    List<FavouriteNotesDto>  allFavouriteNotes();
 }

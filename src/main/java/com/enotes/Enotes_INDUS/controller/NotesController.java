@@ -1,6 +1,7 @@
 package com.enotes.Enotes_INDUS.controller;
 
 
+import com.enotes.Enotes_INDUS.dto.FavouriteNotesDto;
 import com.enotes.Enotes_INDUS.dto.NotesDto;
 import com.enotes.Enotes_INDUS.dto.NotesResponseDto;
 import com.enotes.Enotes_INDUS.exceptions.ResourceNotFound;
@@ -127,6 +128,30 @@ public class NotesController {
         notesService.deleteAllFromRecycle(userId);
         return CommonUtil.createBuildResponseMessage("Recycle bin delete Success ",HttpStatus.OK);
     }
+
+
+    @PostMapping("/fav/{notesId}")
+    public ResponseEntity<?> favouriteNotes(@PathVariable Integer notesId) throws ResourceNotFound {
+        notesService.favouriteNotes(notesId);
+        return CommonUtil.createBuildResponseMessage("Favourite note added",HttpStatus.OK);
+    }
+
+    @PostMapping("/unfav/{favnotesId}")
+    public ResponseEntity<?> unFavouriteNotes(@PathVariable Integer favnotesId) throws ResourceNotFound {
+
+        notesService.unFavouriteNotes(favnotesId);
+        return CommonUtil.createBuildResponseMessage("Favourite note removed",HttpStatus.OK);
+    }
+
+    @GetMapping("/favs")
+    public ResponseEntity<?> allFavouriteNotes() throws ResourceNotFound {
+
+       List<FavouriteNotesDto> favouriteNotesDtoList= notesService.allFavouriteNotes();
+
+        return CommonUtil.createBuildResponse(favouriteNotesDtoList,HttpStatus.OK);
+    }
+
+
 
 
 
