@@ -12,6 +12,7 @@ import java.util.Date;
 
 @Data
 @Entity
+@Builder
 @Getter
 @Setter
 @AllArgsConstructor

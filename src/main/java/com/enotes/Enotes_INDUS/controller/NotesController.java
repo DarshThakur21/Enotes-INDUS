@@ -156,6 +156,19 @@ public class NotesController {
     }
 
 
+    @PostMapping("/copy/{id}")
+    public ResponseEntity<?> copyNotes(@PathVariable Integer id) throws ResourceNotFound {
+        Boolean status=notesService.copyNotes(id);
+        if (status){
+
+        return CommonUtil.createBuildResponseMessage("copy notes created",HttpStatus.CREATED);
+        }
+        return CommonUtil.createErrorResponseMessage("copy notes not created",HttpStatus.NOT_FOUND);
+
+
+    }
+
+
 
 
 

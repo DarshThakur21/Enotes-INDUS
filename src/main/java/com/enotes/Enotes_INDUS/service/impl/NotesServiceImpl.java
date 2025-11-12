@@ -325,6 +325,24 @@ public class NotesServiceImpl implements NotesService {
 
     }
 
+    @Override
+    public Boolean copyNotes(Integer id) throws ResourceNotFound {
+        Notes notes=notesRepository.findById(id).orElseThrow(()->new ResourceNotFound("no such note found"));
+
+        Notes copyNotes=Notes.builder()
+                .title(notes.getTitle())
+                .description(notes.getDescription())
+                .isDeleted(false)
+                .fileDetails(notes.getFileDetails())
+                .build();
+            Notes saveCopyNotes=notesRepository.save(copyNotes);
+            if(ObjectUtils.isEmpty(saveCopyNotes)){
+                return false;
+            }
+            return true;
+
+    }
+
 
     @Override
     public byte[] downloadFile(FileDetails fileDetails) throws Exception {

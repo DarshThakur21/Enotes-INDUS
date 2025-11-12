@@ -40,4 +40,6 @@ public interface NotesService {
     void unFavouriteNotes(Integer notesId) throws ResourceNotFound;
 
     List<FavouriteNotesDto>  allFavouriteNotes();
+
+    Boolean copyNotes(Integer id) throws ResourceNotFound;
 }
