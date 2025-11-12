@@ -11,6 +11,7 @@ import com.enotes.Enotes_INDUS.utils.CommonUtil;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -165,6 +166,25 @@ public class NotesController {
         }
         return CommonUtil.createErrorResponseMessage("copy notes not created",HttpStatus.NOT_FOUND);
 
+
+    }
+
+
+//    excel download
+        @GetMapping("/notes-excel")
+    public  ResponseEntity<?> downloadExcelNotes(){
+        try {
+            ByteArrayResource resource = notesService.exportToExcel();
+            return CommonUtil.createBuildResponseMessage(
+                    "Notes Excel exported successfully.",
+                    HttpStatus.CREATED
+            );
+        } catch (Exception e) {
+            return CommonUtil.createBuildResponseMessage(
+                    "Failed to export Notes Excel: " + e.getMessage(),
+                    HttpStatus.INTERNAL_SERVER_ERROR
+            );
+        }
 
     }
 

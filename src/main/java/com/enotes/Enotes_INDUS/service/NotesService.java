@@ -7,6 +7,7 @@ import com.enotes.Enotes_INDUS.exceptions.ResourceNotFound;
 import com.enotes.Enotes_INDUS.model.FavouriteNotes;
 import com.enotes.Enotes_INDUS.model.FileDetails;
 import com.enotes.Enotes_INDUS.model.Notes;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -42,4 +43,6 @@ public interface NotesService {
     List<FavouriteNotesDto>  allFavouriteNotes();
 
     Boolean copyNotes(Integer id) throws ResourceNotFound;
+
+    ByteArrayResource exportToExcel();
 }

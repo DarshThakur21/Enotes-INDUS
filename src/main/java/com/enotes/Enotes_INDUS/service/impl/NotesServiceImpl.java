@@ -14,12 +14,14 @@ import com.enotes.Enotes_INDUS.repository.FavouriteNotesRepository;
 import com.enotes.Enotes_INDUS.repository.FileDetailsRepository;
 import com.enotes.Enotes_INDUS.repository.NotesRepository;
 import com.enotes.Enotes_INDUS.service.NotesService;
+import com.enotes.Enotes_INDUS.utils.UserExportToExcelService;
 import com.enotes.Enotes_INDUS.utils.Validations;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.FilenameUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -29,10 +31,7 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDate;
@@ -65,6 +64,12 @@ public class NotesServiceImpl implements NotesService {
 
     @Autowired
     private CategoryRepository categoryRepository;
+
+
+    @Autowired
+    private UserExportToExcelService userExportToExcelService;
+
+
 
 
     @Override
@@ -341,6 +346,20 @@ public class NotesServiceImpl implements NotesService {
             }
             return true;
 
+    }
+
+    @Override
+    public ByteArrayResource exportToExcel() {
+
+
+
+        List<Notes> exportNotes=notesRepository.findAll();
+        List<NotesDto> exportNotesDTO=exportNotes.stream()
+                .map(notes -> mapper.map(notes,NotesDto.class))
+                .toList();
+
+       ByteArrayOutputStream out= userExportToExcelService.exportToExcel(exportNotesDTO);
+        return new ByteArrayResource(out.toByteArray());
     }
 
 
