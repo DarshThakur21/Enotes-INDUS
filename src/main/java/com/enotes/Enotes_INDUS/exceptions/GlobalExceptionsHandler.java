@@ -82,6 +82,12 @@ public class GlobalExceptionsHandler {
 
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<?> handleIllegalException(IllegalArgumentException e){
+        return CommonUtil.createErrorResponseMessage(e.getMessage(),HttpStatus.BAD_REQUEST );
+
+    }
+
 
 
 }
