@@ -1,5 +1,6 @@
 package com.enotes.Enotes_INDUS.model;
 
+import com.enotes.Enotes_INDUS.model.enums.Status;
 import com.enotes.Enotes_INDUS.utils.BaseModel;
 import jakarta.persistence.*;
 import lombok.*;
@@ -22,7 +23,8 @@ public class Todo extends BaseModel {
     private String title;
     private String description;
 
-    private Integer status;
+    @Enumerated(EnumType.STRING)
+    private Status status=Status.PENDING;
 
 
 

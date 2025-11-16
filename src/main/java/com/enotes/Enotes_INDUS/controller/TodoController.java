@@ -82,4 +82,26 @@ public class TodoController
         }
 
     }
+
+    @GetMapping("/by-status/{status}")
+    public ResponseEntity<?> getTodoById(@PathVariable String status){
+        try {
+            List<TodoDto> todoDto=todoService.getByStatus(status);
+            if(!ObjectUtils.isEmpty(todoDto)){
+                return CommonUtil.createBuildResponse(todoDto, HttpStatus.OK);
+
+            }
+            return CommonUtil.createErrorResponseMessage("Not found todo with this status", HttpStatus.NOT_FOUND);
+
+
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+
+
+        }
+
+    }
 }

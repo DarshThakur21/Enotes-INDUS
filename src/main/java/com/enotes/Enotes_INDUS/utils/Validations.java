@@ -2,6 +2,7 @@ package com.enotes.Enotes_INDUS.utils;
 
 import com.enotes.Enotes_INDUS.dto.CategoryDto;
 import com.enotes.Enotes_INDUS.dto.NotesDto;
+import com.enotes.Enotes_INDUS.dto.TodoDto;
 import com.enotes.Enotes_INDUS.exceptions.ValidationException;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
@@ -65,6 +66,36 @@ public class Validations {
             throw new ValidationException(error);
         }
     }
+
+    public void todoValidation(TodoDto todoDto){
+        Map<String, Object> error = new HashMap<>();
+
+        if (ObjectUtils.isEmpty(todoDto)) {
+            throw new IllegalArgumentException("todo  object/json not present it shouldnt be null or empty");
+        } else {
+            if (ObjectUtils.isEmpty(todoDto.getTitle())) {
+                error.put("Title:", "The Title shouldn't be empty");
+            }
+
+
+            if (ObjectUtils.isEmpty(todoDto.getDescription())){
+                error.put("Description:", "No description given");
+            } else {
+                if (ObjectUtils.isEmpty(todoDto.getStatus())){
+
+                error.put("Status :", "give the appropriate status");
+                }
+
+            }
+        }
+        if (!error.isEmpty()){
+            throw new ValidationException(error);
+        }
+
+    }
+
+
+
 
 
 

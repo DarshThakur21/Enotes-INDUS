@@ -1,6 +1,7 @@
 package com.enotes.Enotes_INDUS.repository;
 
 import com.enotes.Enotes_INDUS.model.Todo;
+import com.enotes.Enotes_INDUS.model.enums.Status;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -15,4 +16,7 @@ public interface TodoRepo extends JpaRepository<Todo,Integer> {
 
     @Query("select t from Todo t where t.createdBy=:createdBy ")
     List<Todo> findByCreatedBy(@Param("createdBy") int userId);
+
+    @Query("select t from Todo t where t.status=:status ")
+    List<Todo> findByStatus(@Param("status") Status status);
 }

@@ -1,5 +1,6 @@
 package com.enotes.Enotes_INDUS.dto;
 
+import com.enotes.Enotes_INDUS.model.enums.Status;
 import lombok.*;
 
 import java.util.Date;
@@ -15,11 +16,13 @@ public class TodoDto {
     private String title;
     private String description;
 
-    private Integer status;
+    private Status status;
 
     private Integer createdBy;
     private Date createdOn;
     private Integer updatedBy;
     private Date updatedOn;
+
+
 
 }
