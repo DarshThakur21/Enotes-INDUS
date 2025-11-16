@@ -175,10 +175,12 @@ public class NotesController {
     public  ResponseEntity<?> downloadExcelNotes(){
         try {
             ByteArrayResource resource = notesService.exportToExcel();
-            return CommonUtil.createBuildResponseMessage(
-                    "Notes Excel exported successfully.",
-                    HttpStatus.CREATED
-            );
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=notes_export.xlsx")
+                    .contentType(MediaType.parseMediaType(
+                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                    .contentLength(resource.contentLength())
+                    .body(resource);
         } catch (Exception e) {
             return CommonUtil.createBuildResponseMessage(
                     "Failed to export Notes Excel: " + e.getMessage(),

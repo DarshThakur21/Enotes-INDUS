@@ -26,7 +26,7 @@ public class UserExportToExcelService {
     public ByteArrayOutputStream exportToExcel(List<NotesDto> exportNotesDTO) {
         Workbook workbook =new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("Notes");
-
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
 
 
 //        row creation
@@ -59,24 +59,27 @@ public class UserExportToExcelService {
 //            fileOut.close();
 //            workbook.close();
 //            System.out.println("Excel exported successfully at: " + filePath);
-            try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-
-                // Ensure upload directory exists
-                Files.createDirectories(Paths.get(uploadPath));
-
-                String filePath = Paths.get(uploadPath, "notes_export.xlsx").toString();
-
-                // Write workbook both to file and memory
-                try (FileOutputStream fileOut = new FileOutputStream(filePath)) {
-                    workbook.write(fileOut);  // save to file
-                    workbook.write(out);      // save to memory stream
-                }
-
-                workbook.close();
-                System.out.println("Excel exported successfully at: " + filePath);
-
-                return out;  // return stream for possible download use
-
+//            try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+//
+//                // Ensure upload directory exists
+//
+//                Files.createDirectories(Paths.get(uploadPath));
+//
+//                String filePath = Paths.get(uploadPath, "notes_export.xlsx").toString();
+//
+//                // Write workbook both to file and memory
+//                try (FileOutputStream fileOut = new FileOutputStream(filePath)) {
+//                    workbook.write(fileOut);  // save to file
+//                    workbook.write(out);      // save to memory stream
+//                }
+//
+//                workbook.close();
+//                System.out.println("Excel exported successfully at: " + filePath);
+//
+//                return out;  // return stream for possible download use
+            try{
+                workbook.write(out);
+                return out;
             } catch (IOException e) {
             throw new RuntimeException("Failed to export Excel: " + e.getMessage(), e);
         }
