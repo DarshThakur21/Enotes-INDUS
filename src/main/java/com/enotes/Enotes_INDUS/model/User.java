@@ -28,5 +28,10 @@ public class User {
 
 
     @OneToMany(cascade = CascadeType.ALL)
-    private List<Role> roles;
+    @JoinTable(
+            name = "user_role",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private List<Role> role;
 }

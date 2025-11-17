@@ -6,7 +6,9 @@ import com.enotes.Enotes_INDUS.dto.TodoDto;
 import com.enotes.Enotes_INDUS.dto.UserDto;
 import com.enotes.Enotes_INDUS.exceptions.ValidationException;
 import com.enotes.Enotes_INDUS.model.Role;
+import com.enotes.Enotes_INDUS.model.User;
 import com.enotes.Enotes_INDUS.repository.RoleRepo;
+import com.enotes.Enotes_INDUS.repository.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -23,6 +25,9 @@ public class Validations {
 
     @Autowired
     private RoleRepo roleRepo;
+
+    @Autowired
+    private UserRepo userRepo;
 
 
     public void categoryValidation(CategoryDto categoryDto) {
@@ -125,14 +130,22 @@ public class Validations {
 
             if(!StringUtils.hasText(userDto.getEmail())  ||  !(userDto.getEmail().matches(EMAIL_REGEX))){
                 error.put("Email","The Email is empty field or not a correct email address");
+            }else{
+                Optional<User> existingUser=userRepo.findByEmail(userDto.getEmail().trim());
+                if(!ObjectUtils.isEmpty(existingUser)){
+                error.put("Email","The user is already present");
+
+                }
             }
 
             if(!StringUtils.hasText(userDto.getPassword())){
                 error.put("Password","The Password is empty field");
             }
-            if(!StringUtils.hasText(userDto.getMobileNo()) || !(userDto.getMobileNo().matches(MOB_REGEX))){
+            if(!StringUtils.hasText(userDto.getMobileNo()) || !(userDto.getMobileNo().trim().matches(MOB_REGEX))){
                 error.put("MobileNo","The MobileNo is empty field or not a valid phone number ");
             }
+
+
 
 
            if(CollectionUtils.isEmpty(userDto.getRole())){
