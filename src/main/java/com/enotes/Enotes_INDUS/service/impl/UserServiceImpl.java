@@ -1,18 +1,25 @@
 package com.enotes.Enotes_INDUS.service.impl;
 
+import com.enotes.Enotes_INDUS.dto.EmailRequest;
 import com.enotes.Enotes_INDUS.dto.UserDto;
+import com.enotes.Enotes_INDUS.model.AccountStatus;
 import com.enotes.Enotes_INDUS.model.Role;
 import com.enotes.Enotes_INDUS.model.User;
 import com.enotes.Enotes_INDUS.repository.RoleRepo;
 import com.enotes.Enotes_INDUS.repository.UserRepo;
 import com.enotes.Enotes_INDUS.service.UserService;
+import com.enotes.Enotes_INDUS.service.EmailService;
 import com.enotes.Enotes_INDUS.utils.Validations;
+import jakarta.mail.MessagingException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import java.io.UnsupportedEncodingException;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -32,22 +39,65 @@ public class UserServiceImpl implements UserService {
     private Validations validations;
 
 
+    @Autowired
+    private EmailService emailService;
+
+
+
+
     @Override
-    public Boolean registerUser(UserDto userDto) {
+    public Boolean registerUser(UserDto userDto,String url) throws MessagingException, UnsupportedEncodingException {
 
 
         validations.userValidation(userDto);
         setRole(userDto);
+        AccountStatus status=new AccountStatus();
+                status.setIsActive(false);
+                status.setVerificationCode(UUID.randomUUID().toString());
+
         User user=mapper.map(userDto,User.class);
+            user.setAccountStatus(status);
 
         User saveUser=userRepo.save(user);
         if(!ObjectUtils.isEmpty(saveUser)){
+//            sendEmail email
+            emailSend(saveUser,url);
+
 
             return true;
 
         }
 
         return false;
+    }
+
+    private void emailSend(User saveUser,String url) throws MessagingException, UnsupportedEncodingException {
+
+        String msg =
+                "Hi, <b>[[firstname]] [[lastname]]</b><br>" +
+                        "Your account has been registered successfully.<br><br>" +
+                        "Click the link below to verify your account:<br>" +
+                        "<a href='[[url]]'>Click Here!!!</a><br><br>" +
+                        "Thank you!";
+        String verifyUrl=UriComponentsBuilder.fromHttpUrl(url+"/api/v1/home/verify")
+                .queryParam("uid", saveUser.getId())
+                .queryParam("code", saveUser.getAccountStatus().getVerificationCode())
+                .toUriString();
+
+        msg=msg.replace("[[firstname]]",saveUser.getFirstName());
+        msg=msg.replace("[[lastname]]",saveUser.getLastName());
+//        msg=msg.replace("[[url]]","http://localhost:8080/enotes/api/v1/home/verify?uid="+saveUser.getId()+"&code="+saveUser.getAccountStatus().getVerificationCode());
+        msg=msg.replace("[[url]]",verifyUrl);
+
+
+
+        EmailRequest request=new EmailRequest();
+        request.setTo(saveUser.getEmail());
+        request.setTitle("Account Creation Confirmation");
+        request.setSubject("Register");
+        request.setMessage(msg);
+
+        emailService.sendEmail(request);
     }
 
     private void setRole(UserDto userDto) {

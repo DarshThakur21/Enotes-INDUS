@@ -4,8 +4,10 @@ package com.enotes.Enotes_INDUS.controller;
 import com.enotes.Enotes_INDUS.dto.UserDto;
 import com.enotes.Enotes_INDUS.service.UserService;
 import com.enotes.Enotes_INDUS.utils.CommonUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,10 +24,12 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody UserDto userDto){
-        try {
+    public ResponseEntity<?> registerUser(@RequestBody UserDto userDto, HttpServletRequest httpRequest){
 
-        Boolean register=userService.registerUser(userDto);
+        try {
+String url=CommonUtil.getUrl(httpRequest);
+
+        Boolean register=userService.registerUser(userDto,url);
         return CommonUtil.createBuildResponseMessage("Registered Success", HttpStatus.CREATED);
         }catch (Exception e){
             e.printStackTrace();

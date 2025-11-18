@@ -1,7 +1,9 @@
 package com.enotes.Enotes_INDUS.utils;
 
 import com.enotes.Enotes_INDUS.handler.GenericResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.io.FilenameUtils;
+import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -70,5 +72,16 @@ public class CommonUtil {
             default:
                 return "application/octet-stream";
         }
+    }
+
+    public static String getUrl(HttpServletRequest httpRequest) {
+        String url=httpRequest.getRequestURL().toString();
+
+
+        url= url.replace(httpRequest.getServletPath()+"/enotes","");
+
+
+return  url;
+
     }
 }

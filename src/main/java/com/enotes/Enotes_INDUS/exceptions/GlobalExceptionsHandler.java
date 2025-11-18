@@ -88,6 +88,13 @@ public class GlobalExceptionsHandler {
 
     }
 
+    @ExceptionHandler(RegisterException.class)
+    public ResponseEntity<?> handleRegisterException(RegisterException e){
+        return CommonUtil.createErrorResponseMessage(e.getMessage(),HttpStatus.OK );
+
+    }
+
+
 
 
 }
