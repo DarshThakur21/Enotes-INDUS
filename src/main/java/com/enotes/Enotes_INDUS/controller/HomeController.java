@@ -18,6 +18,11 @@ public class HomeController {
     @Autowired
     private HomeService homeService;
 
+    @GetMapping("/str")
+    public String hello(){
+        return "hello this is my front page";
+    }
+
     @GetMapping("/verify")
     public ResponseEntity<?> verifyUser(@RequestParam Integer uid,@RequestParam String code) throws RegisterException {
         Boolean status=homeService.verifyUser(uid,code);

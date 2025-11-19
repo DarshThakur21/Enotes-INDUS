@@ -1,6 +1,9 @@
 package com.enotes.Enotes_INDUS.service.impl;
 
+import com.enotes.Enotes_INDUS.config.security.CustomUserDetails;
 import com.enotes.Enotes_INDUS.dto.EmailRequest;
+import com.enotes.Enotes_INDUS.dto.LoginDto;
+import com.enotes.Enotes_INDUS.dto.LoginResponse;
 import com.enotes.Enotes_INDUS.dto.UserDto;
 import com.enotes.Enotes_INDUS.model.AccountStatus;
 import com.enotes.Enotes_INDUS.model.Role;
@@ -13,6 +16,9 @@ import com.enotes.Enotes_INDUS.utils.Validations;
 import jakarta.mail.MessagingException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -42,6 +48,8 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private EmailService emailService;
 
+    @Autowired
+    private AuthenticationManager manager;
 
 
 
@@ -114,7 +122,19 @@ public class UserServiceImpl implements UserService {
 //    }
 
     @Override
-    public Boolean loginUser(UserDto userDto) {
+    public LoginResponse loginUser(LoginDto loginDto) {
+
+        Authentication authentication =manager.authenticate(new UsernamePasswordAuthenticationToken(loginDto.getEmail(),loginDto.getPassword()));
+
+        if(authentication.isAuthenticated()){
+CustomUserDetails customUserDetails= (CustomUserDetails) authentication.getPrincipal();
+            String token="safffffffffff56gq323tregrfw87oegfasdjfgasdiu";
+            return LoginResponse.builder()
+//                    .userDto(customUserDetails.getUser())
+                    .userDto(mapper.map(customUserDetails.getUser(),UserDto.class))
+                    .token(token)
+                    .build();
+        }
         return null;
     }
 }
