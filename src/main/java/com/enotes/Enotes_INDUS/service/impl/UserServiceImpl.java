@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -51,6 +52,8 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private AuthenticationManager manager;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
 
     @Override
@@ -59,12 +62,14 @@ public class UserServiceImpl implements UserService {
 
         validations.userValidation(userDto);
         setRole(userDto);
+        String pass=userDto.getPassword();
         AccountStatus status=new AccountStatus();
                 status.setIsActive(false);
                 status.setVerificationCode(UUID.randomUUID().toString());
 
         User user=mapper.map(userDto,User.class);
             user.setAccountStatus(status);
+            user.setPassword(passwordEncoder.encode(pass));
 
         User saveUser=userRepo.save(user);
         if(!ObjectUtils.isEmpty(saveUser)){

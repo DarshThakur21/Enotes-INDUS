@@ -33,8 +33,8 @@ public class SecurityConfig {
     public DaoAuthenticationProvider authenticationProvider(){
         DaoAuthenticationProvider provider=new DaoAuthenticationProvider();
         provider.setUserDetailsService(userDetailsService);
-//        provider.setPasswordEncoder(passwordEncoder());
-        provider.setPasswordEncoder(NoOpPasswordEncoder.getInstance());
+        provider.setPasswordEncoder(passwordEncoder());
+//        provider.setPasswordEncoder(NoOpPasswordEncoder.getInstance());
         return provider;
     }
 
@@ -50,8 +50,9 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception{
         httpSecurity.csrf(csrf->csrf.disable())
                         .authorizeHttpRequests
-                                (req->req.requestMatchers("/enotes/api/v1/home/**","/enotes/api/v1/user/**")
+                                (req->req.requestMatchers("/api/v1/home/**","/api/v1/user/**")
                                         .permitAll().anyRequest().authenticated())
+                .authenticationProvider(authenticationProvider())
                         .httpBasic(Customizer.withDefaults());
 
 
