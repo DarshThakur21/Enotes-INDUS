@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.List;
 
 public class CustomUserDetails implements UserDetails {
+    private User user;
 
     public User getUser() {
         return user;
@@ -20,7 +21,6 @@ public class CustomUserDetails implements UserDetails {
         this.user = user;
     }
 
-    private User user;
 
     public CustomUserDetails(User user) {
         super();
@@ -45,7 +45,6 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public String getUsername() {
-//        return "";
     return user.getEmail();
     }
 }

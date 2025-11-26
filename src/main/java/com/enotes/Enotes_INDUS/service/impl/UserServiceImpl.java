@@ -10,6 +10,7 @@ import com.enotes.Enotes_INDUS.model.Role;
 import com.enotes.Enotes_INDUS.model.User;
 import com.enotes.Enotes_INDUS.repository.RoleRepo;
 import com.enotes.Enotes_INDUS.repository.UserRepo;
+import com.enotes.Enotes_INDUS.service.JwtService;
 import com.enotes.Enotes_INDUS.service.UserService;
 import com.enotes.Enotes_INDUS.service.EmailService;
 import com.enotes.Enotes_INDUS.utils.Validations;
@@ -26,6 +27,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.UnsupportedEncodingException;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -54,6 +56,12 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private JwtService jwtService;
+
+
+
 
 
     @Override
@@ -132,8 +140,8 @@ public class UserServiceImpl implements UserService {
         Authentication authentication =manager.authenticate(new UsernamePasswordAuthenticationToken(loginDto.getEmail(),loginDto.getPassword()));
 
         if(authentication.isAuthenticated()){
-CustomUserDetails customUserDetails= (CustomUserDetails) authentication.getPrincipal();
-            String token="safffffffffff56gq323tregrfw87oegfasdjfgasdiu";
+            CustomUserDetails customUserDetails= (CustomUserDetails) authentication.getPrincipal();
+            String token= jwtService.generateToken(customUserDetails.getUser());
             return LoginResponse.builder()
 //                    .userDto(customUserDetails.getUser())
                     .userDto(mapper.map(customUserDetails.getUser(),UserDto.class))
