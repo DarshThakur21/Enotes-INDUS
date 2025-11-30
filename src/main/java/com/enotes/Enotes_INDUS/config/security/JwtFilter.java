@@ -1,6 +1,8 @@
 package com.enotes.Enotes_INDUS.config.security;
 
+import com.enotes.Enotes_INDUS.handler.GenericResponse;
 import com.enotes.Enotes_INDUS.service.JwtService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
@@ -8,6 +10,7 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -51,10 +54,21 @@ public class JwtFilter extends OncePerRequestFilter{
 
             }
         } catch (Exception e) {
-              e.printStackTrace();
-              response.setContentType("application/json");
-              response.getWriter().write(e.getMessage());
+             generateErrorResponse(response,e);
+              return;
         }
         filterChain.doFilter(request,response);
+    }
+
+    private void generateErrorResponse(HttpServletResponse response, Exception e) throws IOException {
+
+        response.setContentType("application/json");
+        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+        Object body= GenericResponse.builder()
+                .status("Failed")
+                .message(e.getMessage())
+                .responseStatus(HttpStatus.UNAUTHORIZED)
+                .build().create().getBody();
+            response.getWriter().write(new ObjectMapper(). writeValueAsString(body));
     }
 }

@@ -1,5 +1,6 @@
 package com.enotes.Enotes_INDUS.service.impl;
 
+import com.enotes.Enotes_INDUS.exceptions.JWTAuthenticationException;
 import com.enotes.Enotes_INDUS.exceptions.JwtTokenExpired;
 import com.enotes.Enotes_INDUS.model.User;
 import com.enotes.Enotes_INDUS.service.JwtService;
@@ -48,6 +49,7 @@ public class JwtServiceImpl implements JwtService {
                 .subject(user.getEmail())
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis()+1000*60*60*20))
+//                .expiration(new Date(System.currentTimeMillis()+60*60*1))
                 .and()
                 .signWith(getKey())
 
@@ -78,7 +80,7 @@ public class JwtServiceImpl implements JwtService {
             throw new JwtTokenExpired("TOKEN IS EXPIRED");
 
         } catch (JwtException e) {
-            throw new JwtTokenExpired("INVALID TOKEN ");
+            throw new JWTAuthenticationException("INVALID TOKEN ");
         }
         catch (Exception e){
             throw  e;
