@@ -1,8 +1,11 @@
 package com.enotes.Enotes_INDUS.service.impl;
 
+import com.enotes.Enotes_INDUS.exceptions.JwtTokenExpired;
 import com.enotes.Enotes_INDUS.model.User;
 import com.enotes.Enotes_INDUS.service.JwtService;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -64,11 +67,22 @@ public class JwtServiceImpl implements JwtService {
     }
 
     private Claims extractAllClaims(String token) {
+        try {
         return Jwts.parser()
                 .verifyWith((SecretKey) getKey())
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
+        }
+        catch (ExpiredJwtException e){
+            throw new JwtTokenExpired("TOKEN IS EXPIRED");
+
+        } catch (JwtException e) {
+            throw new JwtTokenExpired("INVALID TOKEN ");
+        }
+        catch (Exception e){
+            throw  e;
+        }
     }
 
     @Override

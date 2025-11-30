@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +26,7 @@ public class TodoController
     private TodoService todoService;
 
             @GetMapping("/all")
+            @PreAuthorize("hasRole('USER')")
             public ResponseEntity<?> getAllTodos(){
                 try {
 
@@ -43,6 +45,7 @@ public class TodoController
             }
 
             @PostMapping("/save-todo")
+            @PreAuthorize("hasRole('USER')")
             public ResponseEntity<?> saveTodos(@RequestBody  TodoDto todoDto){
                 try {
 
@@ -62,6 +65,7 @@ public class TodoController
             }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> getTodoById(@PathVariable Integer id){
         try {
                 TodoDto todoDto=todoService.getTodoById(id);
@@ -84,6 +88,7 @@ public class TodoController
     }
 
     @GetMapping("/by-status/{status}")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> getTodoById(@PathVariable String status){
         try {
             List<TodoDto> todoDto=todoService.getByStatus(status);

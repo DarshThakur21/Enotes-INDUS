@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
@@ -33,6 +34,7 @@ public class CategoryController
 
 
     @PostMapping("/save-category")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> saveCategory(@Valid @RequestBody CategoryDto categoryDto){
          Boolean savedSuccessCategory=categoryService.saveCategory(categoryDto);
 
@@ -49,6 +51,7 @@ public class CategoryController
     }
 
     @GetMapping("/")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> getAllCategories(){
             List<CategoryDto> allCategories= categoryService.getAllCategory();
 
@@ -66,6 +69,7 @@ public class CategoryController
 
 
     @GetMapping("/active")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> getActiveCategories(){
         List<CategoryResponseDto> activeCategory= categoryService.getActiveCategory();
 
@@ -81,6 +85,7 @@ public class CategoryController
 
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> getCategoryDetailsById(@PathVariable Integer id) throws Exception {
 //        try {
 //
@@ -126,6 +131,7 @@ public class CategoryController
 
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deleteCategoryById(@PathVariable Integer id){
         Boolean deleteCategory = categoryService.deleteCategoryById(id);
 
