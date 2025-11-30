@@ -1,12 +1,16 @@
 package com.enotes.Enotes_INDUS.utils;
 
+import com.enotes.Enotes_INDUS.config.security.CustomUserDetails;
+import com.enotes.Enotes_INDUS.dto.UserResponseDto;
 import com.enotes.Enotes_INDUS.handler.GenericResponse;
+import com.enotes.Enotes_INDUS.model.User;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 public class CommonUtil {
     public static ResponseEntity<?> createBuildResponse(Object data, HttpStatus status){
@@ -81,7 +85,20 @@ public class CommonUtil {
         url= url.replace(httpRequest.getServletPath()+"/enotes","");
 
 
-return  url;
+        return  url;
 
     }
+
+    public static User getLoggedInUser(){
+        try {
+
+        CustomUserDetails loggedUser= (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        return loggedUser.getUser();
+        }catch (Exception e){
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
 }

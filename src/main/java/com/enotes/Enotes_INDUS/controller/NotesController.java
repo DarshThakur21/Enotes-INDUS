@@ -52,7 +52,8 @@ public class NotesController {
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> getAllNotesByUser(@RequestParam (name = "pageNo",defaultValue = "0") Integer pageNo,
                                                @RequestParam (name = "pageSize",defaultValue = "5") Integer pageSize){
-        Integer userId=1;
+
+        Integer userId=CommonUtil.getLoggedInUser().getId();
         NotesResponseDto notesDtoList=notesService.getAllNotesByUser(userId,pageNo,pageSize);
      return CommonUtil.createBuildResponse(notesDtoList,HttpStatus.OK);
     }
@@ -115,7 +116,7 @@ public class NotesController {
     @GetMapping("/recycle")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> getUserRecycleBinNotes()  throws  Exception{
-        Integer userId=1;
+        Integer userId=CommonUtil.getLoggedInUser().getId();
         List<NotesDto> notesDtoList=  notesService.getUserRecycleBinNotes(userId);
 
         if(notesDtoList.isEmpty()){
@@ -135,7 +136,7 @@ public class NotesController {
     @DeleteMapping("/recycle/deleteAll")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> deleteNoteFromRecycle() throws ResourceNotFound {
-        int userId=1;
+        Integer userId=CommonUtil.getLoggedInUser().getId();
         notesService.deleteAllFromRecycle(userId);
         return CommonUtil.createBuildResponseMessage("Recycle bin delete Success ",HttpStatus.OK);
     }

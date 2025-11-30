@@ -14,6 +14,7 @@ import com.enotes.Enotes_INDUS.repository.FavouriteNotesRepository;
 import com.enotes.Enotes_INDUS.repository.FileDetailsRepository;
 import com.enotes.Enotes_INDUS.repository.NotesRepository;
 import com.enotes.Enotes_INDUS.service.NotesService;
+import com.enotes.Enotes_INDUS.utils.CommonUtil;
 import com.enotes.Enotes_INDUS.utils.UserExportToExcelService;
 import com.enotes.Enotes_INDUS.utils.Validations;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -296,7 +297,7 @@ public class NotesServiceImpl implements NotesService {
 
     @Override
     public void favouriteNotes(Integer notesId) throws ResourceNotFound {
-        int userId=1;
+        int userId= CommonUtil.getLoggedInUser().getId();
         Notes existNotes=notesRepository.findById(notesId).orElseThrow(()->new ResourceNotFound("notes id invalid notes not found"));
         FavouriteNotes favouriteNotes=FavouriteNotes.builder()
                 .notes(existNotes)
@@ -315,7 +316,7 @@ public class NotesServiceImpl implements NotesService {
 
     @Override
     public List<FavouriteNotesDto> allFavouriteNotes() {
-       Integer userId=1;
+        int userId= CommonUtil.getLoggedInUser().getId();
 
        List<FavouriteNotes> favouriteNotesList= favouriteNotesRepository.findByUserId(userId);
         List<FavouriteNotesDto> favouriteNotesDtoList = favouriteNotesList.stream()
