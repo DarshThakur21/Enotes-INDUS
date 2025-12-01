@@ -9,6 +9,6 @@ import lombok.Data;
 @Data
 public class LoginResponse {
 
-    private UserDto userDto;
+    private UserResponseDto userDto;
     private String token;
 }

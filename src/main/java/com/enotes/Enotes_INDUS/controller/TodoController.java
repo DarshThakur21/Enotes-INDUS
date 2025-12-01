@@ -30,7 +30,7 @@ public class TodoController
             public ResponseEntity<?> getAllTodos(){
                 try {
 
-                int userId=1;
+                int userId=CommonUtil.getLoggedInUser().getId();
                 List<TodoDto> todoDtoList =todoService.getTodoByUser();
                     if (CollectionUtils.isEmpty(todoDtoList)){
                         return ResponseEntity.noContent().build();

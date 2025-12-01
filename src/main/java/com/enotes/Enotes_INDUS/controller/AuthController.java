@@ -4,7 +4,7 @@ package com.enotes.Enotes_INDUS.controller;
 import com.enotes.Enotes_INDUS.dto.LoginDto;
 import com.enotes.Enotes_INDUS.dto.LoginResponse;
 import com.enotes.Enotes_INDUS.dto.UserDto;
-import com.enotes.Enotes_INDUS.service.UserService;
+import com.enotes.Enotes_INDUS.service.AuthService;
 import com.enotes.Enotes_INDUS.utils.CommonUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -18,12 +18,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
-@RequestMapping("/api/v1/user")
+@RequestMapping("/api/v1/auth")
 @RestController
 public class AuthController {
 
     @Autowired
-    private UserService userService;
+    private AuthService authService;
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody UserDto userDto, HttpServletRequest httpRequest){
@@ -31,7 +31,7 @@ public class AuthController {
         try {
 String url=CommonUtil.getUrl(httpRequest);
 
-        Boolean register=userService.registerUser(userDto,url);
+        Boolean register= authService.registerUser(userDto,url);
         return CommonUtil.createBuildResponseMessage("Registered Success", HttpStatus.CREATED);
         }catch (Exception e){
             e.printStackTrace();
@@ -45,7 +45,7 @@ String url=CommonUtil.getUrl(httpRequest);
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody LoginDto loginDto){
 
-            LoginResponse loginResponse=userService.loginUser(loginDto);
+            LoginResponse loginResponse= authService.loginUser(loginDto);
 
             if(ObjectUtils.isEmpty(loginResponse)){
             return CommonUtil.createBuildResponseMessage("cant login", HttpStatus.BAD_REQUEST);

@@ -7,6 +7,7 @@ import com.enotes.Enotes_INDUS.model.Todo;
 import com.enotes.Enotes_INDUS.model.enums.Status;
 import com.enotes.Enotes_INDUS.repository.TodoRepo;
 import com.enotes.Enotes_INDUS.service.TodoService;
+import com.enotes.Enotes_INDUS.utils.CommonUtil;
 import com.enotes.Enotes_INDUS.utils.Validations;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.modelmapper.ModelMapper;
@@ -94,7 +95,7 @@ public class TodoServiceImpl implements TodoService {
     @Override
     public List<TodoDto> getTodoByUser() {
         try {
-            int userId=1;
+            int userId= CommonUtil.getLoggedInUser().getId();
 
         List<Todo> todoList=todoRepo.findByCreatedBy(userId);
         List<TodoDto> todoDtoList=todoList.stream().map(todo -> modelMapper.map(todo, TodoDto.class)).toList();
