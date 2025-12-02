@@ -1,5 +1,6 @@
 package com.enotes.Enotes_INDUS.controller;
 
+import com.enotes.Enotes_INDUS.dto.PasswordResetRequestDto;
 import com.enotes.Enotes_INDUS.exceptions.RegisterException;
 import com.enotes.Enotes_INDUS.exceptions.ResourceNotFound;
 import com.enotes.Enotes_INDUS.service.HomeService;
@@ -47,7 +48,7 @@ public class HomeController {
     }
 
     @GetMapping("/email-verify")
-    public ResponseEntity<?> verifyPasswordResetLink(@RequestParam Integer uid,@RequestParam String resetCode) throws PasswordRequiredException, RegisterException {
+    public ResponseEntity<?> verifyPasswordResetLink(@RequestParam Integer uid,@RequestParam String resetCode) throws PasswordRequiredException, RegisterException, ResourceNotFound {
           userService.verifyReset(uid,resetCode);
 
             return CommonUtil.createBuildResponseMessage("Password reset Successfully verified", HttpStatus.OK);
@@ -57,10 +58,11 @@ public class HomeController {
 
     }
 
-    @GetMapping("/reset-password")
-    public ResponseEntity<?> resetPasssword(){
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPasssword(@RequestBody PasswordResetRequestDto passwordResetRequestDto){
+            userService.resetPassword(passwordResetRequestDto);
 
-        return null;
+        return CommonUtil.createBuildResponseMessage("PAssword reset successfully and functional",HttpStatus.OK);
     }
 
 

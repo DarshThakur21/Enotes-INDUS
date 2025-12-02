@@ -2,6 +2,7 @@ package com.enotes.Enotes_INDUS.service.impl;
 
 import com.enotes.Enotes_INDUS.dto.EmailRequest;
 import com.enotes.Enotes_INDUS.dto.PasswordChangeRequest;
+import com.enotes.Enotes_INDUS.dto.PasswordResetRequestDto;
 import com.enotes.Enotes_INDUS.exceptions.RegisterException;
 import com.enotes.Enotes_INDUS.exceptions.ResourceNotFound;
 import com.enotes.Enotes_INDUS.model.AccountStatus;
@@ -38,6 +39,8 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private EmailService emailService;
+
+
 
     @Override
     public Boolean changePassword(PasswordChangeRequest passwordChangeRequest) {
@@ -136,6 +139,18 @@ Boolean passwordMatch=passwordEncoder.matches(passwordChangeRequest.getOldPasswo
         }else{
             throw new IllegalArgumentException("INVALID TOKEN");
         }
+
+
+
+    }
+    @Override
+    public void resetPassword(PasswordResetRequestDto passwordResetRequestDto) {
+        Optional<User> userOptional=userRepo.findById(passwordResetRequestDto.getUid());
+        User user=userOptional.get();
+     String newPassword=   passwordEncoder.encode(passwordResetRequestDto.getNewPassword());
+     user.setPassword(newPassword);
+     user.getAccountStatus().setPasswordResetToken(null);
+     userRepo.save(user);
 
 
 

@@ -78,16 +78,23 @@ public class CommonUtil {
         }
     }
 
-    public static String getUrl(HttpServletRequest httpRequest) {
-        String url=httpRequest.getRequestURL().toString();
+//    public static String getUrl(HttpServletRequest httpRequest) {
+//        String url=httpRequest.getRequestURL().toString();
+//
+//
+//        url= url.replace(httpRequest.getServletPath()+"/enotes","");
+//
+//
+//        return  url;
+//
+//    }
+public static String getUrl(HttpServletRequest request) {
+    return request.getScheme() + "://"
+            + request.getServerName()
+            + ":" + request.getServerPort()
+            + request.getContextPath();
+}
 
-
-        url= url.replace(httpRequest.getServletPath()+"/enotes","");
-
-
-        return  url;
-
-    }
 
     public static User getLoggedInUser(){
         try {
