@@ -5,14 +5,8 @@ import com.enotes.Enotes_INDUS.dto.NotesDto;
 import com.enotes.Enotes_INDUS.dto.NotesResponseDto;
 import com.enotes.Enotes_INDUS.exceptions.ExistDataException;
 import com.enotes.Enotes_INDUS.exceptions.ResourceNotFound;
-import com.enotes.Enotes_INDUS.model.Category;
-import com.enotes.Enotes_INDUS.model.FavouriteNotes;
-import com.enotes.Enotes_INDUS.model.FileDetails;
-import com.enotes.Enotes_INDUS.model.Notes;
-import com.enotes.Enotes_INDUS.repository.CategoryRepository;
-import com.enotes.Enotes_INDUS.repository.FavouriteNotesRepository;
-import com.enotes.Enotes_INDUS.repository.FileDetailsRepository;
-import com.enotes.Enotes_INDUS.repository.NotesRepository;
+import com.enotes.Enotes_INDUS.model.*;
+import com.enotes.Enotes_INDUS.repository.*;
 import com.enotes.Enotes_INDUS.service.NotesService;
 import com.enotes.Enotes_INDUS.utils.CommonUtil;
 import com.enotes.Enotes_INDUS.utils.UserExportToExcelService;
@@ -245,6 +239,32 @@ public class NotesServiceImpl implements NotesService {
     }
 
     @Override
+    public NotesResponseDto getAllNotesBySearch( Integer pageNo, Integer pageSize,String keyword) {
+        Integer userId=CommonUtil.getLoggedInUser().getId();
+
+            Pageable pageable =PageRequest.of(pageNo,pageSize);
+
+        Page<Notes> notesList=notesRepository.searchNotes(keyword,userId,pageable);
+
+        List<NotesDto> notesDtoList=notesList.stream()
+                .map(notes -> mapper.map(notes,NotesDto.class)).toList();
+
+        NotesResponseDto responseDto=NotesResponseDto.builder()
+                .notesDtoList(notesDtoList)
+                .pageNo(notesList.getNumber())
+                .pageSize(notesList.getSize())
+                .totalElements( notesList.getTotalElements())
+                .totalPages(notesList.getTotalPages())
+                .isFirst(notesList.isFirst())
+                .islast(notesList.isLast())
+                .build();
+
+
+
+        return responseDto;
+    }
+
+    @Override
     public void deleteNotes(Integer id) throws ResourceNotFound {
         Notes existNotes= notesRepository.findById(id).orElseThrow(()-> new ResourceNotFound("Notes id invalid"));
 
@@ -379,5 +399,9 @@ public class NotesServiceImpl implements NotesService {
 
         return fileDetails;
     }
+
+
+
+
 
 }

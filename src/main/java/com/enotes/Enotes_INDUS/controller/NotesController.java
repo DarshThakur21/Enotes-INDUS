@@ -59,6 +59,18 @@ public class NotesController {
     }
 
 
+    @GetMapping("/search-notes")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> getSearchNotes(@RequestParam (name = "pageNo",defaultValue = "0") Integer pageNo,
+                                               @RequestParam (name = "pageSize",defaultValue = "5") Integer pageSize,
+                                                @RequestParam(name = "keyword") String keyword
+                                            ){
+
+        NotesResponseDto notesDtoList=notesService.getAllNotesBySearch(pageNo,pageSize,keyword);
+        return CommonUtil.createBuildResponse(notesDtoList,HttpStatus.OK);
+    }
+
+
 
 
     @PostMapping("/save-notes")
