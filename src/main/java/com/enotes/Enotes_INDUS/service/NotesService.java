@@ -26,6 +26,8 @@ public interface NotesService {
 
     NotesResponseDto getAllNotesByUser(Integer userId,Integer pageNo,Integer pageSize);
 
+    NotesResponseDto getAllNotesBySearch(Integer pageNo,Integer pageSize,String keyword);
+
     void deleteNotes(Integer id) throws ResourceNotFound;
 
     void restoreNote(Integer id) throws ResourceNotFound;
