@@ -12,6 +12,7 @@ import com.enotes.Enotes_INDUS.service.AuthService;
 import com.enotes.Enotes_INDUS.service.EmailService;
 import com.enotes.Enotes_INDUS.utils.Validations;
 import jakarta.mail.MessagingException;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,6 +27,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 public class AuthServiceImpl implements AuthService {
 
@@ -132,18 +134,19 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public LoginResponse loginUser(LoginDto loginDto) {
-
+        log.info("AuthServiceImpl : loginUser() : start ");
         Authentication authentication =manager.authenticate(new UsernamePasswordAuthenticationToken(loginDto.getEmail(),loginDto.getPassword()));
-
+    
         if(authentication.isAuthenticated()){
             CustomUserDetails customUserDetails= (CustomUserDetails) authentication.getPrincipal();
             String token= jwtService.generateToken(customUserDetails.getUser());
+            log.info("AuthServiceImpl : loginUser() : success");
             return LoginResponse.builder()
-//                    .userDto(customUserDetails.getUser())
                     .userDto(mapper.map(customUserDetails.getUser(), UserResponseDto.class))
                     .token(token)
                     .build();
         }
+        log.info("AuthServiceImpl : cannot be authenticated");
         return null;
     }
 }

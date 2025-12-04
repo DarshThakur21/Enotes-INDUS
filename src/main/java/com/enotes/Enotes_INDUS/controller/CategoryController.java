@@ -36,48 +36,49 @@ public class CategoryController
     @PostMapping("/save-category")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> saveCategory(@Valid @RequestBody CategoryDto categoryDto){
+        log.info("CategoryController : saveCategory() : Start ");
          Boolean savedSuccessCategory=categoryService.saveCategory(categoryDto);
 
-         if(savedSuccessCategory){
+         if(!savedSuccessCategory){
 
-            return CommonUtil.createBuildResponseMessage("Saved Success",HttpStatus.CREATED);
-
-
-//            return  new ResponseEntity<>("your category is saved", HttpStatus.CREATED);
-         }
+            log.info("Category Not Saved ");
             return CommonUtil.createErrorResponseMessage("NotSaved",HttpStatus.INTERNAL_SERVER_ERROR);
-//            return   new ResponseEntity<>("your category is not saved", HttpStatus.INTERNAL_SERVER_ERROR);
+         }
+            log.info("Category Saved Success ");
+            return CommonUtil.createBuildResponseMessage("Saved Success",HttpStatus.CREATED);
 
     }
 
     @GetMapping("/")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> getAllCategories(){
+        log.info("CategoryController : getAllCategories() : Start ");
             List<CategoryDto> allCategories= categoryService.getAllCategory();
 
             if(CollectionUtils.isEmpty(allCategories)){
+            log.info("Couldnt get categories ");
                 return ResponseEntity.noContent().build();
             }
 
+            log.info("Fetched successfully ");
+            log.info("CategoryController : getAllCategories() : End ");
             return CommonUtil.createBuildResponse( allCategories, HttpStatus.OK);
     }
-
-
-
-
-
-
 
     @GetMapping("/active")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> getActiveCategories(){
+            log.info("CategoryController : getActiveCategories() : Start ");
         List<CategoryResponseDto> activeCategory= categoryService.getActiveCategory();
 
         if(CollectionUtils.isEmpty(activeCategory)){
+            log.info("No Category find");
             return ResponseEntity.noContent().build();
         }
+            log.info("Categories find");
+            log.info("CategoryController : getActiveCategories() : END ");
         return CommonUtil.createBuildResponse(activeCategory,HttpStatus.OK);
-//        return new ResponseEntity<>( activeCategory, HttpStatus.OK);
+
     }
 
 
@@ -111,16 +112,19 @@ public class CategoryController
 //        }
 
 
+        log.info("CategoryController : getCategoryDetailsById() : Start ");
 
         CategoryDto categoryDto = categoryService.getCategoryById(id);
 
 
         if (ObjectUtils.isEmpty(categoryDto)) {
-//            return new ResponseEntity<>("category not found with id= " + id, HttpStatus.NOT_FOUND);
+        log.info("No category with {} id  ",id);
             return  CommonUtil.createErrorResponseMessage("Internal server error" ,HttpStatus.OK);
         }
-//        return new ResponseEntity<>(categoryDto, HttpStatus.OK);
 
+
+        log.info("Category with {}  ",id);
+        log.info("CategoryController : getCategoryDetailsById() : END ");
         return CommonUtil.createBuildResponse(categoryDto, HttpStatus.OK);
 
 
@@ -133,17 +137,18 @@ public class CategoryController
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deleteCategoryById(@PathVariable Integer id){
+        log.info("CategoryController : deleteCategoryById() : Start ");
         Boolean deleteCategory = categoryService.deleteCategoryById(id);
 
 
-        if(deleteCategory){
-//            return new ResponseEntity<>("Deleted category with id= "+id, HttpStatus.OK);
-            return CommonUtil.createBuildResponseMessage("Deleted category with id= "+id, HttpStatus.OK);
-
+        if(!deleteCategory){
+            log.info("Category cannot be deleted");
+            return  CommonUtil.createErrorResponseMessage("Cannot delete category " ,HttpStatus.NOT_FOUND);
         }
-//            return new ResponseEntity<>("category not found with id= "+id, HttpStatus.NOT_FOUND);
 
-        return  CommonUtil.createErrorResponseMessage("Internal server error" ,HttpStatus.NOT_FOUND);
+        log.info("Category deleted Success");
+        log.info("CategoryController : deleteCategoryById() : END");
+        return CommonUtil.createBuildResponseMessage("Deleted category with id= "+id, HttpStatus.OK);
 
 
 
