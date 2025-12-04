@@ -9,6 +9,7 @@ import com.enotes.Enotes_INDUS.model.Category;
 import com.enotes.Enotes_INDUS.repository.CategoryRepository;
 import com.enotes.Enotes_INDUS.service.CategoryService;
 import com.enotes.Enotes_INDUS.utils.Validations;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -19,6 +20,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class CategoryServiceImpl implements CategoryService  {
 
@@ -38,20 +40,23 @@ public class CategoryServiceImpl implements CategoryService  {
 
     @Override
     public CategoryDto getCategoryById(Integer id) throws ResourceNotFound {
+        log.info("CategoryServiceImpl : getCategoryById() : Start ");
         Category categoryById = categoryRepository.findByIdAndIsDeletedFalse(id).orElseThrow(()->new ResourceNotFound("Category not found from implied exception "));
 
-        if(!ObjectUtils.isEmpty(categoryById)){
+        if(ObjectUtils.isEmpty(categoryById)){
 //            Category category= categoryById;
-            return mapper.map(categoryById,CategoryDto.class);
-
-
+            log.info("category not present");
+            return  null;
         }
+        log.info("Category Found");
+        log.info("CategoryServiceImpl : getCategoryById() : END");
+        return mapper.map(categoryById,CategoryDto.class);
 
-        return  null;
     }
 
     @Override
     public Boolean saveCategory(CategoryDto categoryDto) throws HttpMessageNotReadableException {
+        log.info("CategoryServiceImpl : saveCategory() : Start ");
 
 //        Category category=new Category();
 //
@@ -66,6 +71,7 @@ public class CategoryServiceImpl implements CategoryService  {
           Boolean categoryExists= categoryRepository.existsByName(categoryDto.getName().trim());
 
           if(categoryExists){
+              log.error("category already exists");
             throw new ExistDataException("Category already exist");
           }
 
@@ -79,17 +85,18 @@ public class CategoryServiceImpl implements CategoryService  {
 
           if(ObjectUtils.isEmpty(category.getId())){
               category.setIsDeleted(false);
-//              category.setCreatedBy(4);
-//              category.setCreatedOn(new Date());
+
           }
           else{
               updateCategory(category);
+              log.info("Category Updated");
           }
 
 
-
-        Category savedCategory =   categoryRepository.save(category);
-                return  !ObjectUtils.isEmpty(savedCategory);
+            Category savedCategory =   categoryRepository.save(category);
+        log.info("Category Saved");
+        log.info("CategoryServiceImpl : saveCategory() : END ");
+          return  !ObjectUtils.isEmpty(savedCategory);
 
     }
 
@@ -101,8 +108,6 @@ public class CategoryServiceImpl implements CategoryService  {
             category.setIsDeleted(existingCategory.getIsDeleted());
             category.setCreatedBy(existingCategory.getCreatedBy());
             category.setCreatedOn(existingCategory.getCreatedOn());
-//            category.setUpdatedBy(1);
-//            category.setUpdatedOn(new Date());
 
         }
 
@@ -111,33 +116,46 @@ public class CategoryServiceImpl implements CategoryService  {
 
     @Override
     public List<CategoryDto> getAllCategory() {
-            List<Category> allCategory= categoryRepository.findAll();
-           List<CategoryDto> categoryDtoList= allCategory.stream()
+        log.info("CategoryServiceImpl : getAllCategory() : Start");
+
+        List<Category> allCategory= categoryRepository.findAll();
+        List<CategoryDto> categoryDtoList= allCategory.stream()
                    .filter(category -> !Boolean.TRUE.equals(category.getIsDeleted()))
                    .map(category -> mapper.map(category,CategoryDto.class)).toList();
+
+        log.info("List found success");
+        log.info("CategoryServiceImpl : getAllCategory() : END");
         return categoryDtoList;
 
     }
 
     @Override
     public List<CategoryResponseDto> getActiveCategory() {
+        log.info("CategoryServiceImpl : getActiveCategory() : Start");
+
         List<Category> allCategory= categoryRepository.findByIsActiveTrueAndIsDeletedFalse();
 
         List<CategoryResponseDto> categoryResponseDtoList = allCategory.stream().map(category -> mapper.map(category,CategoryResponseDto.class)).toList();
-
+        log.info("Active List Found");
+        log.info("CategoryServiceImpl : getActiveCategory() : END");
         return categoryResponseDtoList;
     }
 
     @Override
     public Boolean deleteCategoryById(Integer id) {
+        log.info("CategoryServiceImpl : deleteCategoryById() : Start");
+
         Optional<Category> categoryById =categoryRepository.findById(id);
         if (categoryById.isPresent()){
             Category category=categoryById.get();
             category.setIsDeleted(true);
             categoryRepository.save(category);
             mapper.map(category,CategoryDto.class);
+            log.info("CategoryServiceImpl : Deleted Successfully");
             return true;
         }
+        log.info("CategoryServiceImpl : deleteCategoryById() : END");
+        log.info("CategoryServiceImpl : Cannot beb deleted");
         return false;
     }
 }

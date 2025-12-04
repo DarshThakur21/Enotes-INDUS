@@ -12,6 +12,7 @@ import com.enotes.Enotes_INDUS.utils.CommonUtil;
 import com.enotes.Enotes_INDUS.utils.UserExportToExcelService;
 import com.enotes.Enotes_INDUS.utils.Validations;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 
+@Slf4j
 @Service
 public class NotesServiceImpl implements NotesService {
 
@@ -69,15 +71,21 @@ public class NotesServiceImpl implements NotesService {
 
     @Override
     public Boolean saveNotes(String notesString, MultipartFile file) throws Exception {
+        log.info("NotesServiceImpl : saveNotes() : Start");
         ObjectMapper objectMapper=new ObjectMapper();
         NotesDto notesDto=objectMapper.readValue(notesString,NotesDto.class);
+
+        log.debug("Parsed NotesDto: {}", notesDto);
+
         notesDto.setIsDeleted(Boolean.FALSE);
         notesDto.setDeletedOn(null);
 
 //trying to update save and update in one single api
         if(!ObjectUtils.isEmpty(notesDto.getId())){
+            log.info("Updating existing note ");
         Notes updatedNote = updateNotes(notesDto, file);
             notesRepository.save(updatedNote);
+            log.info("NotesServiceImpl : saveNotes() : End (Update Success)");
             return true;
 
         }
@@ -93,9 +101,13 @@ public class NotesServiceImpl implements NotesService {
 //            throw new ExistDataException("note already exist");
 //
 //        }
+        log.info("Creating new note, validating category & title");
         validations.notesValidation(notesDto);
         Boolean noteExist=notesRepository.existsByTitleAndCategoryId(notesDto.getTitle(), notesDto.getCategory().getId());
-        if (noteExist){throw new ExistDataException("note already exist");}
+        if (noteExist){
+            log.error("Duplicate note  found");
+            throw new ExistDataException("note already exist");
+        }
 
 
         Notes notes=mapper.map(notesDto, Notes.class);
@@ -114,6 +126,7 @@ public class NotesServiceImpl implements NotesService {
         }
 
        Notes savedNotes= notesRepository.save(notes);
+        log.info("NotesServiceImpl : saveNotes() : End (Saved)");
     return  !ObjectUtils.isEmpty(savedNotes);
     }
 
@@ -204,19 +217,24 @@ public class NotesServiceImpl implements NotesService {
 
     @Override
     public List<NotesDto> getAllNotes() {
+        log.info("NotesServiceImpl : getAllNotes() : Start");
 
 
         List<Notes> notesList=notesRepository.findAll();
         List<NotesDto> notesDtoList=notesList.stream()
                 .map(notes -> mapper.map(notes, NotesDto.class)).toList();
+
+        log.info("NotesServiceImpl : getAllNotes() : End");
         return notesDtoList;
 //        return notesRepository.findAll().stream().map(notes -> mapper.map(notes, NotesDto.class)).toList();
     }
     @Override
     public NotesResponseDto getAllNotesByUser(Integer userId,Integer pageNo,Integer pageSize) {
+        log.info("NotesServiceImpl : getAllNotesByUser() : Start");
+
 
 //        Pagination concept
-        Pageable pageable =PageRequest.of(pageNo,pageSize);
+        Pageable pageable=PageRequest.of(pageNo,pageSize);
 
         Page<Notes> notesList=notesRepository.findByCreatedByAndIsDeletedFalse(userId,pageable);
 
@@ -233,13 +251,16 @@ public class NotesServiceImpl implements NotesService {
                 .islast(notesList.isLast())
         .build();
 
+        log.info("Sent the data with pae requests");
 
-
+        log.info("NotesServiceImpl : getAllNotesByUser() : End");
         return responseDto;
     }
 
     @Override
     public NotesResponseDto getAllNotesBySearch( Integer pageNo, Integer pageSize,String keyword) {
+        log.info("NotesServiceImpl : getAllNotesBySearch() : Start");
+
         Integer userId=CommonUtil.getLoggedInUser().getId();
 
             Pageable pageable =PageRequest.of(pageNo,pageSize);
@@ -259,17 +280,26 @@ public class NotesServiceImpl implements NotesService {
                 .islast(notesList.isLast())
                 .build();
 
+        log.info("searching the notes...");
 
+        log.info("NotesServiceImpl : getAllNotesBySearch() : End");
 
         return responseDto;
     }
 
     @Override
     public void deleteNotes(Integer id) throws ResourceNotFound {
-        Notes existNotes= notesRepository.findById(id).orElseThrow(()-> new ResourceNotFound("Notes id invalid"));
+        log.info("NotesServiceImpl : deleteNotes() : Start");
+        Notes existNotes= notesRepository.findById(id).orElseThrow(()-> {
+            log.error("Invalid notes id: {}", id);
+            return  new ResourceNotFound("Notes id invalid");
+        });
+
 
         existNotes.setIsDeleted(Boolean.TRUE);
         existNotes.setDeletedOn(LocalDateTime.now());
+        log.info("delete success");
+        log.info("NotesServiceImpl : deleteNotes() : End");
         notesRepository.save(existNotes);
 
     }
@@ -277,46 +307,71 @@ public class NotesServiceImpl implements NotesService {
 
     @Override
     public void restoreNote(Integer id) throws ResourceNotFound {
-        Notes existNotes = notesRepository.findById(id).orElseThrow(()-> new ResourceNotFound("Notes id invalid"));
+        log.info("NotesServiceImpl : restoreNote() : Start");
+
+        Notes existNotes = notesRepository.findById(id).orElseThrow(() ->{
+                log.error("Invalid notes id: {}", id);
+            return new ResourceNotFound("Notes id invalid");
+        });
 
         existNotes.setIsDeleted(Boolean.FALSE);
         existNotes.setDeletedOn(null);
+        log.info("restored success");
+        log.info("NotesServiceImpl : restoreNote() : End");
         notesRepository.save(existNotes);
 
     }
 
     @Override
     public List<NotesDto> getUserRecycleBinNotes(Integer userId) {
+        log.info("NotesServiceImpl : getUserRecycleBinNotes() : Start");
+
       List<Notes> notesListRecycle =  notesRepository.findByCreatedByAndIsDeletedTrue(userId);
         List<NotesDto> notesDtoListRecycle= notesListRecycle.stream().map(notes -> mapper.map(notes,NotesDto.class)).toList();
 
+        log.info("NotesServiceImpl : getUserRecycleBinNotes() : End");
         return  notesDtoListRecycle;
     }
 
+
     @Override
     public void deleteNotesFromRecycle(Integer id) throws ResourceNotFound {
+        log.info("NotesServiceImpl : deleteNotesFromRecycle() : Start");
+
         Notes existNotes= notesRepository.findById(id).orElseThrow(()-> new ResourceNotFound("Notes id invalid"));
 
             if(existNotes.getIsDeleted()){
+
+                log.info("Delete successful");
+                log.info("NotesServiceImpl : deleteNotesFromRecycle() : End");
                 notesRepository.deleteById(id);
             }else{
+
+                log.info("Delete from recycle failed");
                 throw new IllegalArgumentException("cant hard delete directly notes");
             }
     }
 
     @Override
     public void deleteAllFromRecycle(int userId) {
+        log.info("NotesServiceImpl : deleteAllFromRecycle() : Start");
+
         List<Notes> deleteNoteList=notesRepository.findByCreatedByAndIsDeletedTrue(userId);
         if(!CollectionUtils.isEmpty(deleteNoteList)){
             notesRepository.deleteAll(deleteNoteList);
+            log.info("Delete successful");
+            log.info("NotesServiceImpl : deleteAllFromRecycle() : End");
         }
         else{
+            log.info("Delete from recycle failed");
             throw new RuntimeException("alredy empty recycle");
         }
     }
 
     @Override
     public void favouriteNotes(Integer notesId) throws ResourceNotFound {
+        log.info("NotesServiceImpl : favouriteNotes() : Start");
+
         int userId= CommonUtil.getLoggedInUser().getId();
         Notes existNotes=notesRepository.findById(notesId).orElseThrow(()->new ResourceNotFound("notes id invalid notes not found"));
         FavouriteNotes favouriteNotes=FavouriteNotes.builder()
@@ -324,18 +379,25 @@ public class NotesServiceImpl implements NotesService {
                 .userId(userId)
                 .build();
         favouriteNotesRepository.save(favouriteNotes);
+        log.info("NotesServiceImpl : favouriteNotes() : End");
 
     }
 
     @Override
     public void unFavouriteNotes(Integer favNotesId) throws ResourceNotFound {
+        log.info("NotesServiceImpl : unFavouriteNotes() : Start");
+
         FavouriteNotes existFavouriteNotes=favouriteNotesRepository.findById(favNotesId).orElseThrow(()->new ResourceNotFound("fav notes id invalid notes not found"));
         favouriteNotesRepository.delete(existFavouriteNotes);
+        log.info("NotesServiceImpl : unFavouriteNotes() : End");
+
 
     }
 
     @Override
     public List<FavouriteNotesDto> allFavouriteNotes() {
+        log.info("NotesServiceImpl : allFavouriteNotes() : Start");
+
         int userId= CommonUtil.getLoggedInUser().getId();
 
        List<FavouriteNotes> favouriteNotesList= favouriteNotesRepository.findByUserId(userId);
@@ -347,13 +409,19 @@ public class NotesServiceImpl implements NotesService {
                     return dto;
                 })
                 .toList();
+        log.info("NotesServiceImpl : allFavouriteNotes() : End");
         return favouriteNotesDtoList;
 
     }
 
     @Override
     public Boolean copyNotes(Integer id) throws ResourceNotFound {
-        Notes notes=notesRepository.findById(id).orElseThrow(()->new ResourceNotFound("no such note found"));
+        log.info("NotesServiceImpl : copyNotes() : Start");
+
+        Notes notes=notesRepository.findById(id).orElseThrow(()-> {
+            log.error("note to copy not found");
+            return  new ResourceNotFound("no such note found");
+        });
 
         Notes copyNotes=Notes.builder()
                 .title(notes.getTitle())
@@ -361,18 +429,23 @@ public class NotesServiceImpl implements NotesService {
                 .isDeleted(false)
                 .fileDetails(notes.getFileDetails())
                 .build();
+
+
             Notes saveCopyNotes=notesRepository.save(copyNotes);
             if(ObjectUtils.isEmpty(saveCopyNotes)){
+                log.info("Copy Failed");
                 return false;
             }
+        log.info("Copy sucess");
+        log.info("NotesServiceImpl : copyNotes() : End");
+
             return true;
 
     }
 
     @Override
     public ByteArrayResource exportToExcel() {
-
-
+        log.info("NotesServiceImpl : exportToExcel() : Start");
 
         List<Notes> exportNotes=notesRepository.findAll();
         List<NotesDto> exportNotesDTO=exportNotes.stream()
@@ -380,22 +453,29 @@ public class NotesServiceImpl implements NotesService {
                 .toList();
 
        ByteArrayOutputStream out= userExportToExcelService.exportToExcel(exportNotesDTO);
+        log.info("NotesServiceImpl : exportToExcel() : End");
         return new ByteArrayResource(out.toByteArray());
     }
 
 
     @Override
     public byte[] downloadFile(FileDetails fileDetails) throws Exception {
-
+        log.info("NotesServiceImpl : downloadFile() : Start");
         InputStream inputStream=new FileInputStream(fileDetails.getFilePath());
         byte[] byteData= StreamUtils.copyToByteArray(inputStream);
-
+        log.info("NotesServiceImpl : downloadFile() : End");
             return byteData;
     }
 
     @Override
     public FileDetails getFileDetails(Integer id) throws Exception{
-        FileDetails fileDetails= fileRepository.findById(id).orElseThrow(()->new ResourceNotFound("File is not available"));
+        log.info("NotesServiceImpl : getFileDetails() : Start");
+
+        FileDetails fileDetails= fileRepository.findById(id).orElseThrow(()-> {
+            log.error("File not found");
+            return new ResourceNotFound("File is not available");
+        });
+        log.info("NotesServiceImpl : getFileDetails() : End");
 
         return fileDetails;
     }

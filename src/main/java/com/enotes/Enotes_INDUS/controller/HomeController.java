@@ -40,7 +40,7 @@ public class HomeController {
     }
 
     @GetMapping("/verify")
-    public ResponseEntity<?> verifyUser(@RequestParam Integer uid,@RequestParam String code) throws RegisterException {
+    public ResponseEntity<?> verifyUser(@RequestParam Integer uid,@RequestParam String code) throws RegisterException, ResourceNotFound {
         log.info("HomeController : verifyUser() : Execution Start ");
         Boolean status=homeService.verifyUser(uid,code);
         if(status){
