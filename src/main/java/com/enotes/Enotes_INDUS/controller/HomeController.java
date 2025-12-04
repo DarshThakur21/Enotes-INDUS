@@ -8,7 +8,10 @@ import com.enotes.Enotes_INDUS.service.UserService;
 import com.enotes.Enotes_INDUS.utils.CommonUtil;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.compress.PasswordRequiredException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +23,9 @@ import java.io.UnsupportedEncodingException;
 @RequestMapping("/api/v1/home")
 public class HomeController {
 
+
+    Logger log= LoggerFactory.getLogger(HomeController.class);
+
     @Autowired
     private HomeService homeService;
 
@@ -28,15 +34,19 @@ public class HomeController {
 
     @GetMapping("/str")
     public String hello(){
+
+        log.info("HomeController : hello() : Execution Start ");
         return "hello this is my front page";
     }
 
     @GetMapping("/verify")
     public ResponseEntity<?> verifyUser(@RequestParam Integer uid,@RequestParam String code) throws RegisterException {
+        log.info("HomeController : verifyUser() : Execution Start ");
         Boolean status=homeService.verifyUser(uid,code);
         if(status){
             return CommonUtil.createBuildResponseMessage("Registered Successfully", HttpStatus.CREATED);
         }
+        log.info("HomeController : verifyUser : Execution End ");
             return CommonUtil.createBuildResponseMessage("Invalid Link ", HttpStatus.BAD_REQUEST);
     }
 
