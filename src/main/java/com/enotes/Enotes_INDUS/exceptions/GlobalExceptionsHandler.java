@@ -19,7 +19,7 @@ public class GlobalExceptionsHandler {
 
     @ExceptionHandler(NullPointerException.class)
     public ResponseEntity<?> handleNullPointerException(Exception e){
-        log.error("GlobalExceptionError :: handleNullPointerException ::",e.getMessage());
+        log.error("GlobalExceptionError : handleNullPointerException : {},",e.getMessage());
 
 //        return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         return CommonUtil.createErrorResponseMessage(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR );
@@ -28,7 +28,7 @@ public class GlobalExceptionsHandler {
 
     @ExceptionHandler(ResourceNotFound.class)
     public ResponseEntity<?> handleResourceNotFound(Exception e){
-        log.error("controller :: getCategoryDetailsById ::",e.getMessage());
+        log.error("controller : getCategoryDetailsById {},",e.getMessage());
 
         return CommonUtil.createErrorResponseMessage(e.getMessage(),HttpStatus.NOT_FOUND );
 //        return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -37,7 +37,7 @@ public class GlobalExceptionsHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> handleExecption(Exception e){
-        log.error("GlobalExceptionError :: handleExecption::",e.getMessage());
+        log.error("GlobalExceptionError : handleExecption : {},",e.getMessage());
 
 //        return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         return CommonUtil.createErrorResponseMessage(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR );
@@ -47,7 +47,7 @@ public class GlobalExceptionsHandler {
 
     @ExceptionHandler(ValidationException.class)
     public ResponseEntity<?> handleValidationException(ValidationException e){
-//        log.error("GlobalExceptionError :: handleExecption::",e.getMessage());
+        log.error("GlobalExceptionError : handleValidationException : {},",e.getMessage());
 
 //        return new ResponseEntity<>(e.getError(), HttpStatus.BAD_REQUEST);
 
@@ -57,7 +57,7 @@ public class GlobalExceptionsHandler {
 
     @ExceptionHandler(ExistDataException.class)
     public ResponseEntity<?> handleExistDataException(ExistDataException e){
-//        log.error("GlobalExceptionError :: handleExecption::",e.getMessage());
+        log.error("GlobalExceptionError : handleExistDataException : {},",e.getMessage());
 
 //        return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
         return CommonUtil.createErrorResponseMessage(e.getMessage(),HttpStatus.CONFLICT );
@@ -67,7 +67,7 @@ public class GlobalExceptionsHandler {
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<?> handleHttpMessageNotReadableException(HttpMessageNotReadableException e){
-//        log.error("GlobalExceptionError :: handleExecption::",e.getMessage());
+        log.error("GlobalExceptionError : handleHttpMessageNotReadableException : {},",e.getMessage());
 
 //        return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         return CommonUtil.createErrorResponseMessage(e.getMessage(),HttpStatus.BAD_REQUEST );
@@ -76,7 +76,7 @@ public class GlobalExceptionsHandler {
 
     @ExceptionHandler(FileNotFoundException.class)
     public ResponseEntity<?> handleFileNotFoundException(FileNotFoundException e){
-//        log.error("GlobalExceptionError :: handleExecption::",e.getMessage());
+        log.error("GlobalExceptionError : handleFileNotFoundException : {},",e.getMessage());
 
 //        return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         return CommonUtil.createErrorResponseMessage(e.getMessage(),HttpStatus.NOT_FOUND );
@@ -85,17 +85,21 @@ public class GlobalExceptionsHandler {
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<?> handleIllegalException(IllegalArgumentException e){
+        log.error("GlobalExceptionError : handleIllegalException : {},",e.getMessage());
+
         return CommonUtil.createErrorResponseMessage(e.getMessage(),HttpStatus.BAD_REQUEST );
 
     }
 
     @ExceptionHandler(RegisterException.class)
     public ResponseEntity<?> handleRegisterException(RegisterException e){
+        log.error("GlobalExceptionError : handleRegisterException : {},",e.getMessage());
         return CommonUtil.createErrorResponseMessage(e.getMessage(),HttpStatus.OK );
 
     }
     @ExceptionHandler(AuthorizationDeniedException.class)
     public ResponseEntity<?> handleAuthorizationException(AuthorizationDeniedException e){
+        log.error("GlobalExceptionError : handleAuthorizationException : {},",e.getMessage());
         return CommonUtil.createErrorResponseMessage(e.getMessage(),HttpStatus.FORBIDDEN );
 
     }

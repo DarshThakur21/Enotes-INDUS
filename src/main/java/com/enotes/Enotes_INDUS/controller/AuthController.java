@@ -4,6 +4,7 @@ package com.enotes.Enotes_INDUS.controller;
 import com.enotes.Enotes_INDUS.dto.LoginDto;
 import com.enotes.Enotes_INDUS.dto.LoginResponse;
 import com.enotes.Enotes_INDUS.dto.UserDto;
+import com.enotes.Enotes_INDUS.exceptions.RegisterException;
 import com.enotes.Enotes_INDUS.service.AuthService;
 import com.enotes.Enotes_INDUS.utils.CommonUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,14 +27,16 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody UserDto userDto, HttpServletRequest httpRequest){
-
+    public ResponseEntity<?> registerUser(@RequestBody UserDto userDto, HttpServletRequest httpRequest) throws RegisterException {
+        log.info("AuthController : registerUser() : Start");
         try {
-String url=CommonUtil.getUrl(httpRequest);
+        String url=CommonUtil.getUrl(httpRequest);
 
         Boolean register= authService.registerUser(userDto,url);
+        log.info("AuthController : registerUser() : End");
         return CommonUtil.createBuildResponseMessage("Registered Success", HttpStatus.CREATED);
         }catch (Exception e){
+            log.error("USER ALREADY PRESENT EXCEPTION");
             e.printStackTrace();
         return CommonUtil.createErrorResponseMessage("User already present", HttpStatus.BAD_REQUEST);
 
