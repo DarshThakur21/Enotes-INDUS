@@ -47,13 +47,16 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody LoginDto loginDto){
+        log.info("AuthController : loginUser() : Start");
 
             LoginResponse loginResponse= authService.loginUser(loginDto);
 
             if(ObjectUtils.isEmpty(loginResponse)){
+        log.info("AuthController : loginUser() : Bad Request");
             return CommonUtil.createBuildResponseMessage("cant login", HttpStatus.BAD_REQUEST);
             }
 
+        log.info("AuthController : loginUser() : END");
             return CommonUtil.createBuildResponse(loginResponse, HttpStatus.OK);
     }
 
