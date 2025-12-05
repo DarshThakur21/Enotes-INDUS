@@ -4,6 +4,7 @@ package com.enotes.Enotes_INDUS.controller;
 import com.enotes.Enotes_INDUS.dto.LoginDto;
 import com.enotes.Enotes_INDUS.dto.LoginResponse;
 import com.enotes.Enotes_INDUS.dto.UserDto;
+import com.enotes.Enotes_INDUS.endpoints.AuthEndpoint;
 import com.enotes.Enotes_INDUS.exceptions.RegisterException;
 import com.enotes.Enotes_INDUS.service.AuthService;
 import com.enotes.Enotes_INDUS.utils.CommonUtil;
@@ -19,15 +20,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
-@RequestMapping("/api/v1/auth")
 @RestController
-public class AuthController {
+public class AuthController implements AuthEndpoint {
 
     @Autowired
     private AuthService authService;
 
-    @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody UserDto userDto, HttpServletRequest httpRequest) throws RegisterException {
+    @Override
+    public ResponseEntity<?> registerUser(UserDto userDto, HttpServletRequest httpRequest) throws RegisterException {
         log.info("AuthController : registerUser() : Start");
         try {
         String url=CommonUtil.getUrl(httpRequest);
@@ -44,9 +44,8 @@ public class AuthController {
 
     }
 
-
-    @PostMapping("/login")
-    public ResponseEntity<?> loginUser(@RequestBody LoginDto loginDto){
+    @Override
+    public ResponseEntity<?> loginUser(LoginDto loginDto){
         log.info("AuthController : loginUser() : Start");
 
             LoginResponse loginResponse= authService.loginUser(loginDto);
@@ -59,8 +58,4 @@ public class AuthController {
         log.info("AuthController : loginUser() : END");
             return CommonUtil.createBuildResponse(loginResponse, HttpStatus.OK);
     }
-
-
-
-
 }

@@ -2,6 +2,7 @@ package com.enotes.Enotes_INDUS.controller;
 
 
 import com.enotes.Enotes_INDUS.dto.TodoDto;
+import com.enotes.Enotes_INDUS.endpoints.TodoEndpoint;
 import com.enotes.Enotes_INDUS.service.TodoService;
 import com.enotes.Enotes_INDUS.utils.CommonUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -17,16 +18,14 @@ import java.util.List;
 
 
 @Slf4j
-@RequestMapping("/api/v1/todo")
 @RestController
-public class TodoController
+public class TodoController implements TodoEndpoint
 {
 
     @Autowired
     private TodoService todoService;
 
-            @GetMapping("/all")
-            @PreAuthorize("hasRole('USER')")
+            @Override
             public ResponseEntity<?> getAllTodos(){
                 try {
                 log.info("TodoController : getAllTodos() : Start");
@@ -47,8 +46,7 @@ public class TodoController
 
             }
 
-            @PostMapping("/save-todo")
-            @PreAuthorize("hasRole('USER')")
+            @Override
             public ResponseEntity<?> saveTodos(@RequestBody  TodoDto todoDto){
                 try {
                     log.info("TodoController : saveTodos() : Start");
@@ -71,8 +69,7 @@ public class TodoController
                 }
             }
 
-    @GetMapping("/{id}")
-    @PreAuthorize("hasRole('USER')")
+    @Override
     public ResponseEntity<?> getTodoById(@PathVariable Integer id){
         try {
             log.info("TodoController : getTodoById() : Start");
@@ -95,8 +92,7 @@ public class TodoController
         }
     }
 
-    @GetMapping("/by-status/{status}")
-    @PreAuthorize("hasRole('USER')")
+    @Override
     public ResponseEntity<?> getTodoByStatus(@PathVariable String status){
         try {
             log.info("TodoController : getTodoByStatus() : Start");

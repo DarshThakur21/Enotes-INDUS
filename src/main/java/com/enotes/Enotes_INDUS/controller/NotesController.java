@@ -4,6 +4,7 @@ package com.enotes.Enotes_INDUS.controller;
 import com.enotes.Enotes_INDUS.dto.FavouriteNotesDto;
 import com.enotes.Enotes_INDUS.dto.NotesDto;
 import com.enotes.Enotes_INDUS.dto.NotesResponseDto;
+import com.enotes.Enotes_INDUS.endpoints.NotesEndpoint;
 import com.enotes.Enotes_INDUS.exceptions.ResourceNotFound;
 import com.enotes.Enotes_INDUS.model.FileDetails;
 import com.enotes.Enotes_INDUS.service.NotesService;
@@ -25,14 +26,12 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/notes")
-public class NotesController {
+public class NotesController implements NotesEndpoint {
 
     @Autowired
     private NotesService notesService;
 
-    @GetMapping("/")
-    @PreAuthorize("hasRole('ADMIN')")
+    @Override
     public ResponseEntity<?>  getAllNotes(){
         log.info("NotesController : getAllNotes() : Start");
         List<NotesDto> notesDtoList=notesService.getAllNotes();
@@ -44,16 +43,11 @@ public class NotesController {
         log.info("All notes fetched by admin Success");
         log.info("NotesController : getAllNotes() : End");
         return CommonUtil.createBuildResponse( notesDtoList, HttpStatus.OK);
-
     }
 
-
-
 //    going to be with authentication and session
-    @GetMapping("/user-notes")
-    @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<?> getAllNotesByUser(@RequestParam (name = "pageNo",defaultValue = "0") Integer pageNo,
-                                               @RequestParam (name = "pageSize",defaultValue = "5") Integer pageSize){
+    @Override
+    public ResponseEntity<?> getAllNotesByUser( Integer pageNo,Integer pageSize){
 
         log.info("NotesController : getAllNotesByUser() : Start");
         Integer userId=CommonUtil.getLoggedInUser().getId();
@@ -62,11 +56,8 @@ public class NotesController {
      return CommonUtil.createBuildResponse(notesDtoList,HttpStatus.OK);
     }
 
-    @GetMapping("/search-notes")
-    @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<?> getSearchNotes(@RequestParam (name = "pageNo",defaultValue = "0") Integer pageNo,
-                                               @RequestParam (name = "pageSize",defaultValue = "5") Integer pageSize,
-                                                @RequestParam(name = "keyword") String keyword){
+    @Override
+    public ResponseEntity<?> getSearchNotes( Integer pageNo,Integer pageSize,String keyword){
         log.info("NotesController : getSearchNotes() : Start");
         NotesResponseDto notesDtoList=notesService.getAllNotesBySearch(pageNo,pageSize,keyword);
         log.info("NotesController : getSearchNotes() : End");
@@ -74,9 +65,8 @@ public class NotesController {
     }
 
 
-    @PostMapping("/save-notes")
-    @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<?>  saveNotes(@RequestParam String notes,@RequestParam (required = false) MultipartFile file) throws Exception {
+    @Override
+    public ResponseEntity<?>  saveNotes(String notes,MultipartFile file) throws Exception {
         log.info("NotesController : saveNotes() : Start");
 
         Boolean savedSuccessNotes=notesService.saveNotes(notes,file);
@@ -93,9 +83,8 @@ public class NotesController {
         return CommonUtil.createBuildResponseMessage("Saved Success",HttpStatus.CREATED);
     }
 
-    @GetMapping("/delete/{id}")
-    @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<?> deleteNote(@PathVariable Integer id) throws ResourceNotFound {
+    @Override
+    public ResponseEntity<?> deleteNote( Integer id) throws ResourceNotFound {
         log.info("NotesController : deleteNote() : Start");
         notesService.deleteNotes(id);
         log.info("Delete Note Success");
@@ -103,9 +92,8 @@ public class NotesController {
         return CommonUtil.createBuildResponseMessage("Delete Success ",HttpStatus.OK);
     }
 
-    @GetMapping("/restore/{id}")
-    @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<?> restoreNote(@PathVariable Integer id) throws ResourceNotFound {
+    @Override
+    public ResponseEntity<?> restoreNote( Integer id) throws ResourceNotFound {
         log.info("NotesController : restoreNote() : Start");
         notesService.restoreNote(id);
         log.info("NotesController : restoreNote() : End");
@@ -113,9 +101,8 @@ public class NotesController {
     }
 
 
-    @GetMapping("/download/{id}")
-    @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<?> downloadFile(@PathVariable Integer id) throws Exception{
+    @Override
+    public ResponseEntity<?> downloadFile( Integer id) throws Exception{
         log.info("NotesController : downloadFile() : Start");
 
         FileDetails fileDetails=notesService.getFileDetails(id);
@@ -129,9 +116,7 @@ public class NotesController {
         return   ResponseEntity.ok().headers(headers).body(downloadFile);
     }
 
-
-    @GetMapping("/recycle")
-    @PreAuthorize("hasRole('USER')")
+    @Override
     public ResponseEntity<?> getUserRecycleBinNotes()  throws  Exception{
         log.info("NotesController : getUserRecycleBinNotes() : Start");
 
@@ -146,20 +131,17 @@ public class NotesController {
         log.info("Recycle Bin Fetched");
         log.info("NotesController : getUserRecycleBinNotes() : End");
         return CommonUtil.createBuildResponse(notesDtoList,HttpStatus.OK);
-
     }
 
-    @DeleteMapping("/recycle/delete/{id}")
-    @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<?> deleteNoteFromRecycle(@PathVariable Integer id) throws ResourceNotFound {
+    @Override
+    public ResponseEntity<?> deleteNoteFromRecycle( Integer id) throws ResourceNotFound {
         log.info("NotesController : deleteNoteFromRecycle() : Start");
         notesService.deleteNotesFromRecycle(id);
         log.info("NotesController : deleteNoteFromRecycle() : End");
         return CommonUtil.createBuildResponseMessage("Hard Delete Success ",HttpStatus.OK);
     }
 
-    @DeleteMapping("/recycle/deleteAll")
-    @PreAuthorize("hasRole('USER')")
+    @Override
     public ResponseEntity<?> deleteNoteFromRecycle() throws ResourceNotFound {
         log.info("NotesController : All - deleteNoteFromRecycle() : Start");
         Integer userId=CommonUtil.getLoggedInUser().getId();
@@ -169,9 +151,8 @@ public class NotesController {
     }
 
 
-    @PostMapping("/fav/{notesId}")
-    @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<?> favouriteNotes(@PathVariable Integer notesId) throws ResourceNotFound {
+    @Override
+    public ResponseEntity<?> favouriteNotes( Integer notesId) throws ResourceNotFound {
         log.info("NotesController : favouriteNotes() : Start");
 
         notesService.favouriteNotes(notesId);
@@ -179,17 +160,15 @@ public class NotesController {
         return CommonUtil.createBuildResponseMessage("Favourite note added",HttpStatus.OK);
     }
 
-    @PostMapping("/unfav/{favnotesId}")
-    @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<?> unFavouriteNotes(@PathVariable Integer favnotesId) throws ResourceNotFound {
+    @Override
+    public ResponseEntity<?> unFavouriteNotes( Integer favnotesId) throws ResourceNotFound {
         log.info("NotesController : unFavouriteNotes() : Start");
         notesService.unFavouriteNotes(favnotesId);
         log.info("NotesController : unFavouriteNotes() : End");
         return CommonUtil.createBuildResponseMessage("Favourite note removed",HttpStatus.OK);
     }
 
-    @GetMapping("/favs")
-    @PreAuthorize("hasRole('USER')")
+    @Override
     public ResponseEntity<?> allFavouriteNotes() throws ResourceNotFound {
         log.info("NotesController : allFavouriteNotes() : Start");
 
@@ -204,9 +183,8 @@ public class NotesController {
     }
 
 
-    @PostMapping("/copy/{id}")
-    @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<?> copyNotes(@PathVariable Integer id) throws ResourceNotFound {
+    @Override
+    public ResponseEntity<?> copyNotes( Integer id) throws ResourceNotFound {
         log.info("NotesController : copyNotes() : Start");
 
         Boolean status=notesService.copyNotes(id);
@@ -223,8 +201,7 @@ public class NotesController {
 
 
 //    excel download
-        @GetMapping("/notes-excel")
-        @PreAuthorize("hasRole('USER')")
+    @Override
     public  ResponseEntity<?> downloadExcelNotes(){
         try {
             log.info("NotesController : downloadExcelNotes() : Start");

@@ -2,6 +2,7 @@ package com.enotes.Enotes_INDUS.controller;
 
 import com.enotes.Enotes_INDUS.dto.PasswordChangeRequest;
 import com.enotes.Enotes_INDUS.dto.UserResponseDto;
+import com.enotes.Enotes_INDUS.endpoints.UserEndpoint;
 import com.enotes.Enotes_INDUS.model.User;
 import com.enotes.Enotes_INDUS.service.UserService;
 import com.enotes.Enotes_INDUS.utils.CommonUtil;
@@ -15,8 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/user")
-public class UserController {
+public class UserController implements UserEndpoint {
 
     @Autowired
     private UserService userService;
@@ -24,8 +24,7 @@ public class UserController {
     @Autowired
     private ModelMapper modelMapper;
 
-    @GetMapping("/user-profiles")
-    @PreAuthorize("hasRole('ADMIN')")
+    @Override
     public ResponseEntity<?> getAllUserProfiles(){
         log.info("UserController : getAllUserProfiles() : Start ");
         User loggedInUser= CommonUtil.getLoggedInUser();
@@ -36,7 +35,7 @@ public class UserController {
     }
 
 
-    @PostMapping("/change-password")
+    @Override
     public ResponseEntity<?> changePassword(@RequestBody PasswordChangeRequest passwordChangeRequest){
         log.info("UserController : changePassword() : Start ");
         if(userService.changePassword(passwordChangeRequest)){
@@ -46,7 +45,6 @@ public class UserController {
         }
         log.info("UserController : changePassword() : End");
         return CommonUtil.createErrorResponseMessage("Password Couldnt be change please try again later", HttpStatus.FORBIDDEN);
-
 
     }
 
