@@ -1,6 +1,7 @@
 package com.enotes.Enotes_INDUS.controller;
 
 import com.enotes.Enotes_INDUS.dto.PasswordResetRequestDto;
+import com.enotes.Enotes_INDUS.endpoints.HomeEndpoint;
 import com.enotes.Enotes_INDUS.exceptions.RegisterException;
 import com.enotes.Enotes_INDUS.exceptions.ResourceNotFound;
 import com.enotes.Enotes_INDUS.service.HomeService;
@@ -20,9 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import java.io.UnsupportedEncodingException;
 
 @RestController
-@RequestMapping("/api/v1/home")
-public class HomeController {
-
+public class HomeController implements HomeEndpoint {
 
     Logger log= LoggerFactory.getLogger(HomeController.class);
 
@@ -39,8 +38,8 @@ public class HomeController {
         return "hello this is my front page";
     }
 
-    @GetMapping("/verify")
-    public ResponseEntity<?> verifyUser(@RequestParam Integer uid,@RequestParam String code) throws RegisterException, ResourceNotFound {
+    @Override
+    public ResponseEntity<?> verifyUser(Integer uid, String code) throws RegisterException, ResourceNotFound {
         log.info("HomeController : verifyUser() : Execution Start ");
         Boolean status=homeService.verifyUser(uid,code);
         if(status){
@@ -51,30 +50,28 @@ public class HomeController {
     }
 
 
-    @GetMapping("/reset-password-mail")
-    public ResponseEntity<?> sendEmailForPasswordReset(@RequestParam String email, HttpServletRequest request) throws MessagingException, ResourceNotFound, UnsupportedEncodingException {
+    @Override
+    public ResponseEntity<?> sendEmailForPasswordReset( String email, HttpServletRequest request) throws MessagingException, ResourceNotFound, UnsupportedEncodingException {
+        log.info("HomeController : sendEmailForPasswordReset() : Start");
         userService.sendEmailPasswordReset(email,request);
+
+        log.info("HomeController : sendEmailForPasswordReset() : End");
         return CommonUtil.createBuildResponseMessage("Email sent for reset",HttpStatus.OK);
     }
 
-    @GetMapping("/email-verify")
-    public ResponseEntity<?> verifyPasswordResetLink(@RequestParam Integer uid,@RequestParam String resetCode) throws PasswordRequiredException, RegisterException, ResourceNotFound {
+    @Override
+    public ResponseEntity<?> verifyPasswordResetLink(Integer uid, String resetCode) throws PasswordRequiredException, RegisterException, ResourceNotFound {
+        log.info("HomeController : verifyPasswordResetLink() : Start");
           userService.verifyReset(uid,resetCode);
-
-            return CommonUtil.createBuildResponseMessage("Password reset Successfully verified", HttpStatus.OK);
-
-
-
-
+        log.info("HomeController : verifyPasswordResetLink() : End");
+        return CommonUtil.createBuildResponseMessage("Password reset Successfully verified", HttpStatus.OK);
     }
 
-    @PostMapping("/reset-password")
+    @Override
     public ResponseEntity<?> resetPasssword(@RequestBody PasswordResetRequestDto passwordResetRequestDto){
-            userService.resetPassword(passwordResetRequestDto);
-
-        return CommonUtil.createBuildResponseMessage("PAssword reset successfully and functional",HttpStatus.OK);
+        log.info("HomeController : resetPasssword() : Start");
+        userService.resetPassword(passwordResetRequestDto);
+        log.info("HomeController : resetPasssword() : End");
+        return CommonUtil.createBuildResponseMessage("Password reset successfully and functional",HttpStatus.OK);
     }
-
-
-
 }

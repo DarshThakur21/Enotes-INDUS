@@ -10,6 +10,7 @@ import com.enotes.Enotes_INDUS.service.TodoService;
 import com.enotes.Enotes_INDUS.utils.CommonUtil;
 import com.enotes.Enotes_INDUS.utils.Validations;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class TodoServiceImpl implements TodoService {
 
@@ -41,21 +43,27 @@ public class TodoServiceImpl implements TodoService {
     @Override
     public Boolean saveTodo(TodoDto todoDto) throws ResourceNotFound {
 //        ObjectMapper objectMapper =new ObjectMapper();
+        log.info("TodoServiceImpl : saveTodo() : Start");
         validations.todoValidation(todoDto);
         Todo todo =modelMapper.map(todoDto, Todo.class);
 
         if(!ObjectUtils.isEmpty(todoDto.getId())){
+            log.info("Updating the todo");
             Todo updateTodo=updateTodos(todoDto);
             todoRepo.save(updateTodo);
+            log.info("Upadted Todo");
             return true;
         }
 
          Todo saveTools=  todoRepo.save(todo);
-         if(!ObjectUtils.isEmpty(saveTools)){
+         if(ObjectUtils.isEmpty(saveTools)){
 
-     return true;
+        log.info("Todo didnot saved");
+        return false;
          }
-     return false;
+        log.info("Todo saved");
+        log.info("TodoServiceImpl : saveTodo() : End");
+        return true;
 
 
     }
@@ -75,19 +83,21 @@ public class TodoServiceImpl implements TodoService {
     @Override
     public TodoDto getTodoById(Integer todoId)  {
         try{
-        Todo todo=todoRepo.findById(todoId).orElseThrow(()->new ResourceNotFound("dont have any id with this id"));
-        
+            log.info("TodoServiceImpl : getTodoById() : Start");
+        Todo todo=todoRepo.findById(todoId).orElseThrow(()-> {
+            log.error("Cannot fetch todo with this id:{}",todoId);
+            return new ResourceNotFound("dont have any id with this id");
+        });
             TodoDto todoDto=modelMapper.map(todo,TodoDto.class);
-
-
+            log.info("Success");
+            log.info("TodoServiceImpl : getTodoById() : End");
             return  todoDto;
 
         } catch (Exception e) {
+            log.error("Error getting todo");
             e.printStackTrace();
         }
-
         return null;
-
     }
 
 
@@ -95,13 +105,18 @@ public class TodoServiceImpl implements TodoService {
     @Override
     public List<TodoDto> getTodoByUser() {
         try {
+            log.info("TodoServiceImpl : getTodoByUser() : Start");
             int userId= CommonUtil.getLoggedInUser().getId();
 
         List<Todo> todoList=todoRepo.findByCreatedBy(userId);
         List<TodoDto> todoDtoList=todoList.stream().map(todo -> modelMapper.map(todo, TodoDto.class)).toList();
+
+        log.info("Success");
+        log.info("TodoServiceImpl : getTodoByUser() : End");
         return  todoDtoList;
         }
         catch (Exception e) {
+        log.error("Cannot fetch todo by user");
             e.printStackTrace();
             return Collections.EMPTY_LIST;
         }
@@ -109,10 +124,11 @@ public class TodoServiceImpl implements TodoService {
 
     @Override
     public List<TodoDto> getByStatus(String status) {
+        log.info("TodoServiceImpl : getByStatus() : Start");
         Status statusValue=Status.valueOf(status.toUpperCase());
         List<Todo> todo=todoRepo.findByStatus(statusValue);
         List<TodoDto> todoDtoList=todo.stream().map(t -> modelMapper.map(t, TodoDto.class)).toList();
-
+        log.info("TodoServiceImpl : getByStatus() : End");
         return todoDtoList;
 
     }

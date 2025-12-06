@@ -2,6 +2,7 @@ package com.enotes.Enotes_INDUS.controller;
 
 import com.enotes.Enotes_INDUS.dto.CategoryDto;
 import com.enotes.Enotes_INDUS.dto.CategoryResponseDto;
+import com.enotes.Enotes_INDUS.endpoints.CategoryEndpoint;
 import com.enotes.Enotes_INDUS.exceptions.ResourceNotFound;
 import com.enotes.Enotes_INDUS.model.Category;
 import com.enotes.Enotes_INDUS.service.CategoryService;
@@ -23,19 +24,14 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/category")
-public class CategoryController
+public class CategoryController implements CategoryEndpoint
 {
 
     @Autowired
     private CategoryService categoryService;
 
-
-
-
-    @PostMapping("/save-category")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> saveCategory(@Valid @RequestBody CategoryDto categoryDto){
+    @Override
+    public ResponseEntity<?> saveCategory(CategoryDto categoryDto){
         log.info("CategoryController : saveCategory() : Start ");
          Boolean savedSuccessCategory=categoryService.saveCategory(categoryDto);
 
@@ -49,8 +45,7 @@ public class CategoryController
 
     }
 
-    @GetMapping("/")
-    @PreAuthorize("hasRole('ADMIN')")
+    @Override
     public ResponseEntity<?> getAllCategories(){
         log.info("CategoryController : getAllCategories() : Start ");
             List<CategoryDto> allCategories= categoryService.getAllCategory();
@@ -65,8 +60,7 @@ public class CategoryController
             return CommonUtil.createBuildResponse( allCategories, HttpStatus.OK);
     }
 
-    @GetMapping("/active")
-    @PreAuthorize("hasRole('USER')")
+    @Override
     public ResponseEntity<?> getActiveCategories(){
             log.info("CategoryController : getActiveCategories() : Start ");
         List<CategoryResponseDto> activeCategory= categoryService.getActiveCategory();
@@ -81,13 +75,8 @@ public class CategoryController
 
     }
 
-
-
-
-
-    @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> getCategoryDetailsById(@PathVariable Integer id) throws Exception {
+    @Override
+    public ResponseEntity<?> getCategoryDetailsById(Integer id) throws Exception {
 //        try {
 //
 //
@@ -111,32 +100,22 @@ public class CategoryController
 //            return new ResponseEntity<>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
 //        }
 
-
         log.info("CategoryController : getCategoryDetailsById() : Start ");
-
         CategoryDto categoryDto = categoryService.getCategoryById(id);
-
 
         if (ObjectUtils.isEmpty(categoryDto)) {
         log.info("No category with {} id  ",id);
             return  CommonUtil.createErrorResponseMessage("Internal server error" ,HttpStatus.OK);
         }
 
-
         log.info("Category with {}  ",id);
         log.info("CategoryController : getCategoryDetailsById() : END ");
         return CommonUtil.createBuildResponse(categoryDto, HttpStatus.OK);
-
-
-
-
-
     }
 
 
-    @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> deleteCategoryById(@PathVariable Integer id){
+    @Override
+    public ResponseEntity<?> deleteCategoryById(Integer id){
         log.info("CategoryController : deleteCategoryById() : Start ");
         Boolean deleteCategory = categoryService.deleteCategoryById(id);
 
@@ -150,12 +129,5 @@ public class CategoryController
         log.info("CategoryController : deleteCategoryById() : END");
         return CommonUtil.createBuildResponseMessage("Deleted category with id= "+id, HttpStatus.OK);
 
-
-
     }
-
-
-
-
-
 }
