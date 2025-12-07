@@ -6,7 +6,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import static com.enotes.Enotes_INDUS.utils.Constants.ROLE_USER;
+import static com.enotes.Enotes_INDUS.utils.Constants.*;
 
 @RequestMapping("/api/v1/notes")
 public interface NotesEndpoint {
@@ -17,13 +17,13 @@ public interface NotesEndpoint {
 
     @GetMapping("/user-notes")
     @PreAuthorize(ROLE_USER)
-    public ResponseEntity<?> getAllNotesByUser(@RequestParam(name = "pageNo",defaultValue = "0") Integer pageNo,
-                                               @RequestParam (name = "pageSize",defaultValue = "5") Integer pageSize);
+    public ResponseEntity<?> getAllNotesByUser(@RequestParam(name = "pageNo",defaultValue = DEFAULT_PAGENO) Integer pageNo,
+                                               @RequestParam (name = "pageSize",defaultValue = DEFAULT_PAGESIZE) Integer pageSize);
 
     @GetMapping("/search-notes")
     @PreAuthorize(ROLE_USER)
-    public ResponseEntity<?> getSearchNotes(@RequestParam (name = "pageNo",defaultValue = "0") Integer pageNo,
-                                            @RequestParam (name = "pageSize",defaultValue = "5") Integer pageSize,
+    public ResponseEntity<?> getSearchNotes(@RequestParam (name = "pageNo",defaultValue = DEFAULT_PAGENO) Integer pageNo,
+                                            @RequestParam (name = "pageSize",defaultValue = DEFAULT_PAGESIZE) Integer pageSize,
                                             @RequestParam(name = "keyword") String keyword);
 
     @PostMapping("/save-notes")

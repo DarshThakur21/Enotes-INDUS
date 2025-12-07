@@ -24,6 +24,14 @@ spring:
           auth: true
           starttls:
             enable: true
+springdoc:
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+
+
+
+
 
 file:
   upload:
@@ -33,6 +41,7 @@ file:
 email:
   send:
     from: dummysingh2001002@gmail.com
+
 
 
 ---

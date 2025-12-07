@@ -11,6 +11,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.HttpSecurityDsl;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -18,6 +19,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+
 
 @Configuration
 @EnableWebSecurity
@@ -52,17 +55,36 @@ public class SecurityConfig {
         return configuration.getAuthenticationManager();
     }
 
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return (web) -> web.ignoring().requestMatchers(
+                // The most critical paths, including your context path
+                "/enotes/swagger-ui/**",
+                "/enotes/v3/api-docs/**",
+
+                // Non-context path versions (for compatibility/internal redirects)
+                "/swagger-ui/**",
+                "/v3/api-docs/**"
+        );
+    }
+
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception{
         httpSecurity.csrf(csrf->csrf.disable())
                 .authorizeHttpRequests
-                        (req->req.requestMatchers("/api/v1/home/**","/api/v1/auth/**")
+                        (req->req.requestMatchers(
+                                        "/api/v1/auth/**",
+                                        "/api/v1/home/**"
+                                )
+//                                http://localhost:8080/enotes/webjars/swagger-ui/index.html use this
                                 .permitAll().anyRequest().authenticated())
                                 .authenticationProvider(authenticationProvider())
                                 .httpBasic(Customizer.withDefaults())
                 .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+
+
 
 
     return   httpSecurity.build();
