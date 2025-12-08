@@ -26,14 +26,16 @@ public class SwaggerConfig {
         info.setTitle("ENOTES INDUS APIS");
         info.setDescription("LIST OF ALL THE API CALLS PRESENT IN THE ENOTES APP");
         info.setVersion("1.0.0");
-        info.setTermsOfService("http://enotes.com");
+        info.setTermsOfService("http://enotesIndus.com");
         info.setContact(
-                new Contact().email("chaseaccel2@gmail.com").name("Chase").url("http://enotes.com")
+                new Contact().email("chaseaccel2@gmail.com").name("Chase").url("http://enotesIndus.com")
         );
-        info.setLicense(new License().name("Enotes 1.1").url("http://enotes.com"));
-        List<Server> serversList =List.of(new Server().description("DEV").url("http://localhost:8085/enotes"),
-        new Server().description("TEST").url("http://localhost:8085/enotes"),
-        new Server().description("PROD").url("http://localhost:8085/enotes"));
+        info.setLicense(new License().name("Enotes 1.1").url("http://enotesIndus.com"));
+
+        List<Server> serversList =List.of(new Server().description("DEV").url("http://localhost:8080/enotes"),
+        new Server().description("TEST").url("http://localhost:8080/enotes"),
+        new Server().description("PROD").url("http://localhost:8080/enotes"));
+
         SecurityScheme securityScheme=new SecurityScheme().name("Authorization")
                         .scheme("bearer").type(SecurityScheme.Type.HTTP)
                         .bearerFormat("JWT").in(SecurityScheme.In.HEADER);
