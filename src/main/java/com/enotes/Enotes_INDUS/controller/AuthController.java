@@ -46,16 +46,16 @@ public class AuthController implements AuthEndpoint {
 
     @Override
     public ResponseEntity<?> loginUser(LoginDto loginDto){
-        log.info("AuthController : loginUser() : Start");
+//        log.info("AuthController : loginUser() : Start");
 
             LoginResponse loginResponse= authService.loginUser(loginDto);
 
             if(ObjectUtils.isEmpty(loginResponse)){
-        log.info("AuthController : loginUser() : Bad Request");
+//        log.info("AuthController : loginUser() : Bad Request");
             return CommonUtil.createBuildResponseMessage("cant login", HttpStatus.BAD_REQUEST);
             }
 
-        log.info("AuthController : loginUser() : END");
+//        log.info("AuthController : loginUser() : END");
             return CommonUtil.createBuildResponse(loginResponse, HttpStatus.OK);
     }
 }

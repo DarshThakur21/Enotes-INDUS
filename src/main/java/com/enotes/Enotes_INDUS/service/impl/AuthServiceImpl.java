@@ -134,19 +134,19 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public LoginResponse loginUser(LoginDto loginDto) {
-        log.info("AuthServiceImpl : loginUser() : start ");
+//        log.info("AuthServiceImpl : loginUser() : start ");
         Authentication authentication =manager.authenticate(new UsernamePasswordAuthenticationToken(loginDto.getEmail(),loginDto.getPassword()));
     
         if(authentication.isAuthenticated()){
             CustomUserDetails customUserDetails= (CustomUserDetails) authentication.getPrincipal();
             String token= jwtService.generateToken(customUserDetails.getUser());
-            log.info("AuthServiceImpl : loginUser() : success");
+//            log.info("AuthServiceImpl : loginUser() : success");
             return LoginResponse.builder()
                     .userDto(mapper.map(customUserDetails.getUser(), UserResponseDto.class))
                     .token(token)
                     .build();
         }
-        log.info("AuthServiceImpl : cannot be authenticated");
+//        log.info("AuthServiceImpl : cannot be authenticated");
         return null;
     }
 }

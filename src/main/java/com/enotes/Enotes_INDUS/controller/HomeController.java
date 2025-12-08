@@ -33,7 +33,6 @@ public class HomeController implements HomeEndpoint {
 
     @GetMapping("/str")
     public String hello(){
-
         log.info("HomeController : hello() : Execution Start ");
         return "hello this is my front page";
     }
