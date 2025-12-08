@@ -58,13 +58,11 @@ public class SecurityConfig {
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return (web) -> web.ignoring().requestMatchers(
-                // The most critical paths, including your context path
                 "/enotes/swagger-ui/**",
                 "/enotes/v3/api-docs/**",
-
-                // Non-context path versions (for compatibility/internal redirects)
                 "/swagger-ui/**",
-                "/v3/api-docs/**"
+                "/v3/api-docs/**",
+                "/actuator/**"
         );
     }
 
@@ -83,11 +81,6 @@ public class SecurityConfig {
                                 .httpBasic(Customizer.withDefaults())
                 .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
-
-
-
-
     return   httpSecurity.build();
     }
-
 }
