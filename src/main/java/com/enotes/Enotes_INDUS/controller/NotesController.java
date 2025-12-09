@@ -12,6 +12,7 @@ import com.enotes.Enotes_INDUS.utils.CommonUtil;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -32,6 +33,7 @@ public class NotesController implements NotesEndpoint {
     private NotesService notesService;
 
     @Override
+    @Cacheable("allNotes")
     public ResponseEntity<?>  getAllNotes(){
         log.info("NotesController : getAllNotes() : Start");
         List<NotesDto> notesDtoList=notesService.getAllNotes();

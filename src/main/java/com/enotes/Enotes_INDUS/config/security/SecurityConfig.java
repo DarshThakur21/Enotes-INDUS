@@ -73,7 +73,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests
                         (req->req.requestMatchers(
                                         "/api/v1/auth/**",
-                                        "/api/v1/home/**"
+                                        "/api/v1/home/**",
+                                        "/api/v1/caches/**"
                                 )
 //                                http://localhost:8080/enotes/webjars/swagger-ui/index.html use this
                                 .permitAll().anyRequest().authenticated())
