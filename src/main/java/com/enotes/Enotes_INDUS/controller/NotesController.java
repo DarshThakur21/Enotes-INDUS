@@ -49,7 +49,8 @@ public class NotesController implements NotesEndpoint {
 
 //    going to be with authentication and session
     @Override
-    public ResponseEntity<?> getAllNotesByUser( Integer pageNo,Integer pageSize){
+    @Cacheable("allNotesByUser")
+        public ResponseEntity<?> getAllNotesByUser( Integer pageNo,Integer pageSize){
 
         log.info("NotesController : getAllNotesByUser() : Start");
         Integer userId=CommonUtil.getLoggedInUser().getId();
@@ -119,6 +120,7 @@ public class NotesController implements NotesEndpoint {
     }
 
     @Override
+    @Cacheable("recycleBin")
     public ResponseEntity<?> getUserRecycleBinNotes()  throws  Exception{
         log.info("NotesController : getUserRecycleBinNotes() : Start");
 
@@ -171,6 +173,7 @@ public class NotesController implements NotesEndpoint {
     }
 
     @Override
+    @Cacheable("favouriteNotesList")
     public ResponseEntity<?> allFavouriteNotes() throws ResourceNotFound {
         log.info("NotesController : allFavouriteNotes() : Start");
 

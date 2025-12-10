@@ -12,6 +12,7 @@ import com.enotes.Enotes_INDUS.utils.Validations;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
@@ -142,6 +143,7 @@ public class CategoryServiceImpl implements CategoryService  {
     }
 
     @Override
+    @CacheEvict(value = {"allCategory","getActiveCategory"},key = "#id")
     public Boolean deleteCategoryById(Integer id) {
         log.info("CategoryServiceImpl : deleteCategoryById() : Start");
 

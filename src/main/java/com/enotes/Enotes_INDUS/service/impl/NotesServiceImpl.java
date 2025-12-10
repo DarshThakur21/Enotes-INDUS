@@ -17,6 +17,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -89,10 +90,6 @@ public class NotesServiceImpl implements NotesService {
             return true;
 
         }
-
-
-
-
 
 //category valdation
         checkCategoryExist(notesDto.getCategory());
@@ -288,6 +285,7 @@ public class NotesServiceImpl implements NotesService {
     }
 
     @Override
+    @CacheEvict(value = {"allNotes","favouriteNotesList","allNotesByUser"},key = "#id")
     public void deleteNotes(Integer id) throws ResourceNotFound {
         log.info("NotesServiceImpl : deleteNotes() : Start");
         Notes existNotes= notesRepository.findById(id).orElseThrow(()-> {
@@ -335,6 +333,7 @@ public class NotesServiceImpl implements NotesService {
 
 
     @Override
+    @CacheEvict(value = {"allNotes","favouriteNotesList","allNotesByUser","recycleBin"},key = "#id")
     public void deleteNotesFromRecycle(Integer id) throws ResourceNotFound {
         log.info("NotesServiceImpl : deleteNotesFromRecycle() : Start");
 
@@ -353,6 +352,7 @@ public class NotesServiceImpl implements NotesService {
     }
 
     @Override
+    @CacheEvict(value = "recycleBin")
     public void deleteAllFromRecycle(int userId) {
         log.info("NotesServiceImpl : deleteAllFromRecycle() : Start");
 
@@ -384,6 +384,7 @@ public class NotesServiceImpl implements NotesService {
     }
 
     @Override
+
     public void unFavouriteNotes(Integer favNotesId) throws ResourceNotFound {
         log.info("NotesServiceImpl : unFavouriteNotes() : Start");
 
@@ -479,9 +480,5 @@ public class NotesServiceImpl implements NotesService {
 
         return fileDetails;
     }
-
-
-
-
 
 }

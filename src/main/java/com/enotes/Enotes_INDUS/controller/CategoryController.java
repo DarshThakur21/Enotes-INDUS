@@ -63,6 +63,7 @@ public class CategoryController implements CategoryEndpoint
     }
 
     @Override
+    @Cacheable("getActiveCategory")
     public ResponseEntity<?> getActiveCategories(){
             log.info("CategoryController : getActiveCategories() : Start ");
         List<CategoryResponseDto> activeCategory= categoryService.getActiveCategory();
@@ -79,29 +80,6 @@ public class CategoryController implements CategoryEndpoint
 
     @Override
     public ResponseEntity<?> getCategoryDetailsById(Integer id) throws Exception {
-//        try {
-//
-//
-//            CategoryDto categoryDto = categoryService.getCategoryById(id);
-//
-//
-//            if (ObjectUtils.isEmpty(categoryDto)) {
-//                return new ResponseEntity<>("category not found with id= " + id, HttpStatus.NOT_FOUND);
-//            }
-//            return new ResponseEntity<>(categoryDto, HttpStatus.OK);
-//
-//
-//        }
-//        catch(ResourceNotFound e){
-//            log.error("controller :: getCategoryDetailsById ::",e.getMessage());
-//
-//            return new ResponseEntity<>(e.getMessage(),HttpStatus.NOT_FOUND);
-//
-//
-//        } catch (Exception e) {
-//            return new ResponseEntity<>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-
         log.info("CategoryController : getCategoryDetailsById() : Start ");
         CategoryDto categoryDto = categoryService.getCategoryById(id);
 
