@@ -31,10 +31,10 @@ public class LogginAspect {
         String className= signature.getDeclaringType().getSimpleName();
         String methodName= signature.getName();
         long start=System.currentTimeMillis();
-        log.info("Calling :: {} :: {}() :: {} MS",className,methodName,start);
+        log.info("Process Calling :: {} :: {}() :: {} MS",className,methodName,start);
         Object result=joinPoint.proceed();
         long duration=System.currentTimeMillis()-start;
-        log.info("End Calling :: {} :: {}() :: {} MS",className,methodName,duration);
+        log.info("End Process Calling :: {} :: {}() :: {} MS",className,methodName,duration);
         return result;
 
     }
@@ -63,10 +63,10 @@ public class LogginAspect {
         String className= signature.getDeclaringType().getSimpleName();
         String methodName= signature.getName();
         long start=System.currentTimeMillis();
-        log.info("Calling :: {} :: {}() :: {} MS",className,methodName,start);
+        log.info("Process Calling :: {} :: {}() :: {} MS",className,methodName,start);
         Object result=joinPoint.proceed();
         long duration=System.currentTimeMillis()-start;
-        log.info("End Calling :: {} :: {}() :: {} MS",className,methodName,duration);
+        log.info("End Process Calling :: {} :: {}() :: {} MS",className,methodName,duration);
         return result;
 
     }

@@ -12,6 +12,7 @@ import com.enotes.Enotes_INDUS.utils.CommonUtil;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -32,6 +33,7 @@ public class NotesController implements NotesEndpoint {
     private NotesService notesService;
 
     @Override
+    @Cacheable("allNotes")
     public ResponseEntity<?>  getAllNotes(){
         log.info("NotesController : getAllNotes() : Start");
         List<NotesDto> notesDtoList=notesService.getAllNotes();
@@ -47,7 +49,8 @@ public class NotesController implements NotesEndpoint {
 
 //    going to be with authentication and session
     @Override
-    public ResponseEntity<?> getAllNotesByUser( Integer pageNo,Integer pageSize){
+    @Cacheable("allNotesByUser")
+        public ResponseEntity<?> getAllNotesByUser( Integer pageNo,Integer pageSize){
 
         log.info("NotesController : getAllNotesByUser() : Start");
         Integer userId=CommonUtil.getLoggedInUser().getId();
@@ -117,6 +120,7 @@ public class NotesController implements NotesEndpoint {
     }
 
     @Override
+    @Cacheable("recycleBin")
     public ResponseEntity<?> getUserRecycleBinNotes()  throws  Exception{
         log.info("NotesController : getUserRecycleBinNotes() : Start");
 
@@ -169,6 +173,7 @@ public class NotesController implements NotesEndpoint {
     }
 
     @Override
+    @Cacheable("favouriteNotesList")
     public ResponseEntity<?> allFavouriteNotes() throws ResourceNotFound {
         log.info("NotesController : allFavouriteNotes() : Start");
 
