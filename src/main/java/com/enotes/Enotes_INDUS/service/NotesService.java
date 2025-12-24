@@ -1,6 +1,7 @@
 package com.enotes.Enotes_INDUS.service;
 
 import com.enotes.Enotes_INDUS.dto.FavouriteNotesDto;
+import com.enotes.Enotes_INDUS.dto.FileDownloadDto;
 import com.enotes.Enotes_INDUS.dto.NotesDto;
 import com.enotes.Enotes_INDUS.dto.NotesResponseDto;
 import com.enotes.Enotes_INDUS.exceptions.ResourceNotFound;
@@ -47,4 +48,8 @@ public interface NotesService {
     Boolean copyNotes(Integer id) throws ResourceNotFound;
 
     ByteArrayResource exportToExcel();
+
+    FileDetails uploadFile(MultipartFile file);
+
+    FileDownloadDto downloadDirectFile(Integer id);
 }

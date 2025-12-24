@@ -28,7 +28,6 @@ public interface NotesEndpoint {
 
     @PostMapping("/save-notes")
     @PreAuthorize(ROLE_USER)
-
     public ResponseEntity<?>  saveNotes(@RequestParam String notes,@RequestParam (required = false) MultipartFile file) throws Exception;
 
     @GetMapping("/delete/{id}")
@@ -76,4 +75,14 @@ public interface NotesEndpoint {
     @GetMapping("/notes-excel")
     @PreAuthorize(ROLE_USER)
     public  ResponseEntity<?> downloadExcelNotes();
+
+    @PostMapping("/file-upload")
+    @PreAuthorize(ROLE_USER)
+    public ResponseEntity<?> uploadFile(@RequestParam("uploadFile") MultipartFile multipartFile);
+
+
+    @GetMapping("/download-file-direct/{id}")
+    @PreAuthorize(ROLE_USER)
+    public ResponseEntity<?> downloadFileDirect(@PathVariable Integer id);
+
 }

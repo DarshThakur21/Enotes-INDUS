@@ -2,6 +2,7 @@ package com.enotes.Enotes_INDUS.controller;
 
 
 import com.enotes.Enotes_INDUS.dto.FavouriteNotesDto;
+import com.enotes.Enotes_INDUS.dto.FileDownloadDto;
 import com.enotes.Enotes_INDUS.dto.NotesDto;
 import com.enotes.Enotes_INDUS.dto.NotesResponseDto;
 import com.enotes.Enotes_INDUS.endpoints.NotesEndpoint;
@@ -20,6 +21,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -112,6 +114,7 @@ public class NotesController implements NotesEndpoint {
         byte[] downloadFile     =  notesService.downloadFile(fileDetails);
         HttpHeaders headers =new HttpHeaders();
         String contentType=CommonUtil.getContentType(fileDetails.getOriginalFileName());
+
         headers.setContentType(MediaType.parseMediaType(contentType));
         headers.setContentDispositionFormData("attachment",fileDetails.getOriginalFileName());
 
@@ -228,4 +231,34 @@ public class NotesController implements NotesEndpoint {
         }
 
     }
+
+    @Override
+    public ResponseEntity<?> uploadFile(MultipartFile file) {
+        FileDetails fileDetails=notesService.uploadFile(file);
+        if(ObjectUtils.isEmpty(fileDetails)){
+            return CommonUtil.createErrorResponseMessage("couldnt save the file ",HttpStatus.BAD_REQUEST);
+        }
+        return CommonUtil.createBuildResponseMessage("upload success", HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<?> downloadFileDirect(Integer id) {
+        FileDownloadDto fileDownloadDto=notesService.downloadDirectFile(id);
+
+        byte[] fileData=fileDownloadDto.getFileData();
+        FileDetails fileDetails=fileDownloadDto.getFileDetails();
+
+        if(ObjectUtils.isEmpty(fileData)){
+            return CommonUtil.createErrorResponseMessage("couldnt get the file ",HttpStatus.BAD_REQUEST);
+        }
+    String contentType=CommonUtil.getContentType(fileDetails.getOriginalFileName());
+        HttpHeaders headers=new HttpHeaders();
+        headers.setContentType(MediaType.parseMediaType(contentType));
+        headers.setContentDispositionFormData("attachment",fileDetails.getOriginalFileName());
+
+        return   ResponseEntity.ok().headers(headers).body(fileData);
+    }
+
+
+
 }

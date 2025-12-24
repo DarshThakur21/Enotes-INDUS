@@ -1,6 +1,7 @@
 package com.enotes.Enotes_INDUS.service.impl;
 
 import com.enotes.Enotes_INDUS.dto.FavouriteNotesDto;
+import com.enotes.Enotes_INDUS.dto.FileDownloadDto;
 import com.enotes.Enotes_INDUS.dto.NotesDto;
 import com.enotes.Enotes_INDUS.dto.NotesResponseDto;
 import com.enotes.Enotes_INDUS.exceptions.ExistDataException;
@@ -30,8 +31,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -456,6 +457,63 @@ public class NotesServiceImpl implements NotesService {
        ByteArrayOutputStream out= userExportToExcelService.exportToExcel(exportNotesDTO);
         log.info("NotesServiceImpl : exportToExcel() : End");
         return new ByteArrayResource(out.toByteArray());
+    }
+
+    @Override
+    public FileDetails uploadFile(MultipartFile file) {
+            try {
+                if(file.isEmpty()){
+                    throw new ResourceNotFound("File does not exist");
+                }
+                File directory=new File(uploadPath);
+                if(!directory.exists()){
+                    log.info("thshshshshhshsh "+directory);
+                    directory.mkdirs();
+                }
+                System.out.println(directory);
+
+                String originalFileName = file.getOriginalFilename();
+                String extension = FilenameUtils.getExtension(originalFileName);
+                String uniqueName = UUID.randomUUID().toString() + "." + extension;
+                String fullPath = uploadPath + File.separator + uniqueName;
+
+                FileDetails fileDetails=FileDetails.builder()
+                        .displayFileName(originalFileName)
+                        .filePath(fullPath)
+                        .uploadFileName(uniqueName)
+                        .fileSize(file.getSize())
+                        .originalFileName(originalFileName)
+                        .build();
+
+                return fileRepository.save(fileDetails);
+
+            }catch (Exception e){
+                e.printStackTrace();
+                throw  new RuntimeException("could not store the file");
+            }
+
+    }
+
+    @Override
+    public FileDownloadDto downloadDirectFile(Integer id) {
+
+      try {
+          Optional<FileDetails> fileDetailsOptional =fileRepository.findById(id);
+          FileDetails fileDetails=fileDetailsOptional.get();
+
+          Path path=Paths.get(fileDetails.getFilePath()).toAbsolutePath();
+          FileDownloadDto fileDownloadDto=FileDownloadDto.builder()
+                  .fileData(Files.readAllBytes(path))
+                  .fileDetails(fileDetails)
+                  .build();
+          return  fileDownloadDto;
+
+      } catch (RuntimeException e) {
+          throw new RuntimeException(e);
+      } catch (IOException e) {
+          throw new RuntimeException(e);
+      }
+
     }
 
 
