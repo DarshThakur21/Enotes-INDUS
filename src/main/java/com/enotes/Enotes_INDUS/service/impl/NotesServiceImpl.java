@@ -459,39 +459,48 @@ public class NotesServiceImpl implements NotesService {
         return new ByteArrayResource(out.toByteArray());
     }
 
+
     @Override
     public FileDetails uploadFile(MultipartFile file) {
-            try {
-                if(file.isEmpty()){
-                    throw new ResourceNotFound("File does not exist");
-                }
-                File directory=new File(uploadPath);
-                if(!directory.exists()){
-                    log.info("thshshshshhshsh "+directory);
-                    directory.mkdirs();
-                }
-                System.out.println(directory);
-
-                String originalFileName = file.getOriginalFilename();
-                String extension = FilenameUtils.getExtension(originalFileName);
-                String uniqueName = UUID.randomUUID().toString() + "." + extension;
-                String fullPath = uploadPath + File.separator + uniqueName;
-
-                FileDetails fileDetails=FileDetails.builder()
-                        .displayFileName(originalFileName)
-                        .filePath(fullPath)
-                        .uploadFileName(uniqueName)
-                        .fileSize(file.getSize())
-                        .originalFileName(originalFileName)
-                        .build();
-
-                return fileRepository.save(fileDetails);
-
-            }catch (Exception e){
-                e.printStackTrace();
-                throw  new RuntimeException("could not store the file");
+        try {
+            if (file.isEmpty()) {
+                throw new ResourceNotFound("File is empty or does not exist");
             }
 
+            // 1. Ensure the directory exists using Path API
+            Path rootPath = Paths.get(uploadPath);
+            if (!Files.exists(rootPath)) {
+                Files.createDirectories(rootPath);
+                log.info("Created directory at: " + rootPath.toAbsolutePath());
+            }
+
+            // 2. Generate unique filename
+            String originalFileName = file.getOriginalFilename();
+            String extension = FilenameUtils.getExtension(originalFileName);
+            String uniqueName = UUID.randomUUID().toString() + "." + extension;
+
+            // 3. Resolve the target path correctly
+            // resolve() is better than string concatenation as it manages separators automatically
+            Path targetPath = rootPath.resolve(uniqueName);
+
+            // 4. PHYSICAL UPLOAD: Copy the file stream to the destination
+            Files.copy(file.getInputStream(), targetPath);
+
+            // 5. Build and Save metadata to DB
+            FileDetails fileDetails = FileDetails.builder()
+                    .displayFileName(originalFileName)
+                    .filePath(targetPath.toAbsolutePath().toString()) // Store the full absolute path
+                    .uploadFileName(uniqueName)
+                    .fileSize(file.getSize())
+                    .originalFileName(originalFileName)
+                    .build();
+
+            return fileRepository.save(fileDetails);
+
+        } catch (Exception e) {
+            log.error("Error during file upload: ", e);
+            throw new RuntimeException("Could not store the file: " + e.getMessage());
+        }
     }
 
     @Override
@@ -501,12 +510,21 @@ public class NotesServiceImpl implements NotesService {
           Optional<FileDetails> fileDetailsOptional =fileRepository.findById(id);
           FileDetails fileDetails=fileDetailsOptional.get();
 
-          Path path=Paths.get(fileDetails.getFilePath()).toAbsolutePath();
-          FileDownloadDto fileDownloadDto=FileDownloadDto.builder()
+          Path path=Paths.get(uploadPath).resolve(fileDetails.getUploadFileName()).toAbsolutePath();
+
+          log.info("System looking for file at: {}", path);
+
+          if (!Files.exists(path)) {
+              // Log the parent directory content to see what's actually there
+              log.error("File MISSING at path: {}", path);
+              throw new RuntimeException("Physical file not found at: " + path);
+          }
+
+
+          return FileDownloadDto.builder()
                   .fileData(Files.readAllBytes(path))
                   .fileDetails(fileDetails)
                   .build();
-          return  fileDownloadDto;
 
       } catch (RuntimeException e) {
           throw new RuntimeException(e);

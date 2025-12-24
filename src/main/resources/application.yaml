@@ -51,7 +51,7 @@ management:
 
 file:
   upload:
-    path: "D:/Project2/Enotes/Enotes-INDUS/Enotes-INDUS/notes/"
+    path: "notes/"
     pathExcel: "excelstorage/"
 
 email:
