@@ -3,6 +3,13 @@ server:
   servlet:
     context-path: /enotes
 
+gemini:
+  api:
+    key: {api-key}
+    url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent
+
+
+
 spring:
   application:
     name: Enotes-INDUS
@@ -57,6 +64,9 @@ file:
 email:
   send:
     from: dummysingh2001002@gmail.com
+
+
+
 
 
 

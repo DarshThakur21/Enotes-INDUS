@@ -40,6 +40,10 @@ public interface NotesRepository extends JpaRepository<Notes,Integer> {
    );
 
 
+   @Query("SELECT n FROM Notes n where n.id=:id")
+    Notes getById(@Param("id") Integer id);
+
+
 
 
 }

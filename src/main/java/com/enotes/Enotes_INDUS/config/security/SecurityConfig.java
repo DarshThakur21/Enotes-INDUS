@@ -62,7 +62,8 @@ public class SecurityConfig {
                 "/enotes/v3/api-docs/**",
                 "/swagger-ui/**",
                 "/v3/api-docs/**",
-                "/actuator/**"
+                "/actuator/**",
+                "/enotes/api/v1/notes/summarize"
         );
     }
 
