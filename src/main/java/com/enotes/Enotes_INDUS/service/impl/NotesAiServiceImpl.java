@@ -1,13 +1,18 @@
 package com.enotes.Enotes_INDUS.service.impl;
 
 
-import com.enotes.Enotes_INDUS.service.impl.feature.ConversationMemory;
-import com.enotes.Enotes_INDUS.service.impl.feature.GeminiClient;
-import com.enotes.Enotes_INDUS.service.impl.feature.PdfTextExtractor;
-import com.enotes.Enotes_INDUS.service.impl.feature.PromptBuilder;
+import com.enotes.Enotes_INDUS.model.FileDetails;
+import com.enotes.Enotes_INDUS.model.Notes;
+import com.enotes.Enotes_INDUS.repository.NotesRepository;
+import com.enotes.Enotes_INDUS.service.impl.feature.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 @Service
 public class NotesAiServiceImpl {
@@ -24,8 +29,33 @@ public class NotesAiServiceImpl {
     @Autowired
     private PromptBuilder promptBuilder;
 
+    @Autowired
+    private NotesRepository notesRepository;
 
-    public String summarize(String conversationId, String title, String desc, MultipartFile file){
+public String summarizeNote(Integer id) throws IOException {
+    Notes notes=notesRepository.getById(id);
+    String conversationId=notes.getCreatedBy()+":"+notes.getId();
+
+    MultipartFile multipartFile = null;
+
+    if (notes.getFileDetails() != null) {
+        FileDetails fd = notes.getFileDetails();
+        byte[] content = Files.readAllBytes(Paths.get(fd.getFilePath()));
+
+        multipartFile = new ByteArrayMultipartFile(
+                content,
+                fd.getUploadFileName(),      // name
+                fd.getOriginalFileName(),    // original file name
+                "application/pdf"            // content type
+        );
+    }
+
+    String result = summarize(conversationId,notes.getTitle(),notes.getDescription(),  multipartFile    );
+    return result;
+}
+
+
+    private  String summarize(String conversationId, String title, String desc, MultipartFile file){
         String pdfText= file !=null && !file.isEmpty()?pdfTextExtractor.extract(file) : null;
         System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"+pdfText);
         System.out.println("PDF TEXT LENGTH = " + (pdfText == null ? 0 : pdfText.length()));
