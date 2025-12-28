@@ -5,7 +5,7 @@ server:
 
 gemini:
   api:
-    key: AIzaSyA-shUD07lQKV3pF99nzJYDA9yRlEra2jI
+    key: 
     url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent
 
 
