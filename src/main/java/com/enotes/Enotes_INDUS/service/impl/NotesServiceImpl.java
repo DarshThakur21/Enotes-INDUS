@@ -19,6 +19,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -72,6 +73,7 @@ public class NotesServiceImpl implements NotesService {
 
 
     @Override
+    @CacheEvict(value = "allNotesByUser", allEntries = true)
     public Boolean saveNotes(String notesString, MultipartFile file) throws Exception {
         log.info("NotesServiceImpl : saveNotes() : Start");
         ObjectMapper objectMapper=new ObjectMapper();

@@ -15,6 +15,8 @@ import java.util.List;
 public interface NotesRepository extends JpaRepository<Notes,Integer> {
    Boolean existsByTitleAndCategoryId(String title, Integer categoryId);
 
+
+   @Query("SELECT n FROM Notes n WHERE n.createdBy =:userId AND n.isDeleted = false ")
    Page<Notes> findByCreatedByAndIsDeletedFalse(Integer userId, Pageable pageable);
 
 

@@ -13,6 +13,8 @@ import com.enotes.Enotes_INDUS.utils.CommonUtil;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
@@ -89,6 +91,7 @@ public class NotesController implements NotesEndpoint {
     }
 
     @Override
+    @CacheEvict(value = "allNotesByUser", allEntries = true)
     public ResponseEntity<?> deleteNote( Integer id) throws ResourceNotFound {
         log.info("NotesController : deleteNote() : Start");
         notesService.deleteNotes(id);
