@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -73,7 +74,7 @@ public class NotesServiceImpl implements NotesService {
 
 
     @Override
-    @CacheEvict(value = "allNotesByUser", allEntries = true)
+    @CacheEvict(cacheNames = "UserNotes", allEntries = true)
     public Boolean saveNotes(String notesString, MultipartFile file) throws Exception {
         log.info("NotesServiceImpl : saveNotes() : Start");
         ObjectMapper objectMapper=new ObjectMapper();
@@ -229,6 +230,10 @@ public class NotesServiceImpl implements NotesService {
 //        return notesRepository.findAll().stream().map(notes -> mapper.map(notes, NotesDto.class)).toList();
     }
     @Override
+    @Cacheable(
+            cacheNames = "UserNotes",
+            key = "#userId + '::' + #pageNo + '::' + #pageSize"
+    )
     public NotesResponseDto getAllNotesByUser(Integer userId,Integer pageNo,Integer pageSize) {
         log.info("NotesServiceImpl : getAllNotesByUser() : Start");
 
@@ -288,7 +293,7 @@ public class NotesServiceImpl implements NotesService {
     }
 
     @Override
-    @CacheEvict(value = {"allNotes","favouriteNotesList","allNotesByUser"},key = "#id")
+    @CacheEvict(cacheNames = "UserNotes",  allEntries = true)
     public void deleteNotes(Integer id) throws ResourceNotFound {
         log.info("NotesServiceImpl : deleteNotes() : Start");
         Notes existNotes= notesRepository.findById(id).orElseThrow(()-> {
@@ -324,6 +329,10 @@ public class NotesServiceImpl implements NotesService {
     }
 
     @Override
+    @Cacheable(
+            cacheNames = "UserRecycleBinNotes",
+            key = "#userId"
+    )
     public List<NotesDto> getUserRecycleBinNotes(Integer userId) {
         log.info("NotesServiceImpl : getUserRecycleBinNotes() : Start");
 
@@ -336,7 +345,6 @@ public class NotesServiceImpl implements NotesService {
 
 
     @Override
-    @CacheEvict(value = {"allNotes","favouriteNotesList","allNotesByUser","recycleBin"},key = "#id")
     public void deleteNotesFromRecycle(Integer id) throws ResourceNotFound {
         log.info("NotesServiceImpl : deleteNotesFromRecycle() : Start");
 
@@ -355,7 +363,6 @@ public class NotesServiceImpl implements NotesService {
     }
 
     @Override
-    @CacheEvict(value = "recycleBin")
     public void deleteAllFromRecycle(int userId) {
         log.info("NotesServiceImpl : deleteAllFromRecycle() : Start");
 
@@ -399,6 +406,11 @@ public class NotesServiceImpl implements NotesService {
     }
 
     @Override
+    @Cacheable(
+            cacheNames = "UserFavouriteNotes",
+            key = "T(com.enotes.Enotes_INDUS.util.CommonUtil).getLoggedInUser().getId()"
+    )
+
     public List<FavouriteNotesDto> allFavouriteNotes() {
         log.info("NotesServiceImpl : allFavouriteNotes() : Start");
 

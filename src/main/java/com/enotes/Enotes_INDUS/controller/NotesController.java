@@ -10,18 +10,15 @@ import com.enotes.Enotes_INDUS.exceptions.ResourceNotFound;
 import com.enotes.Enotes_INDUS.model.FileDetails;
 import com.enotes.Enotes_INDUS.service.NotesService;
 import com.enotes.Enotes_INDUS.utils.CommonUtil;
-import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
@@ -37,7 +34,6 @@ public class NotesController implements NotesEndpoint {
     private NotesService notesService;
 
     @Override
-    @Cacheable("allNotes")
     public ResponseEntity<?>  getAllNotes(){
         log.info("NotesController : getAllNotes() : Start");
         List<NotesDto> notesDtoList=notesService.getAllNotes();
@@ -53,7 +49,6 @@ public class NotesController implements NotesEndpoint {
 
 //    going to be with authentication and session
     @Override
-    @Cacheable("allNotesByUser")
         public ResponseEntity<?> getAllNotesByUser( Integer pageNo,Integer pageSize){
 
         log.info("NotesController : getAllNotesByUser() : Start");
@@ -91,7 +86,6 @@ public class NotesController implements NotesEndpoint {
     }
 
     @Override
-    @CacheEvict(value = "allNotesByUser", allEntries = true)
     public ResponseEntity<?> deleteNote( Integer id) throws ResourceNotFound {
         log.info("NotesController : deleteNote() : Start");
         notesService.deleteNotes(id);
@@ -126,7 +120,6 @@ public class NotesController implements NotesEndpoint {
     }
 
     @Override
-    @Cacheable("recycleBin")
     public ResponseEntity<?> getUserRecycleBinNotes()  throws  Exception{
         log.info("NotesController : getUserRecycleBinNotes() : Start");
 
@@ -179,7 +172,6 @@ public class NotesController implements NotesEndpoint {
     }
 
     @Override
-    @Cacheable("favouriteNotesList")
     public ResponseEntity<?> allFavouriteNotes() throws ResourceNotFound {
         log.info("NotesController : allFavouriteNotes() : Start");
 

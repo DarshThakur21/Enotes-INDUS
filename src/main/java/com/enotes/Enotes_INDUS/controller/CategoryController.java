@@ -10,7 +10,6 @@ import com.enotes.Enotes_INDUS.utils.CommonUtil;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -47,7 +46,6 @@ public class CategoryController implements CategoryEndpoint
     }
 
     @Override
-    @Cacheable("allCategory")
     public ResponseEntity<?> getAllCategories(){
         log.info("CategoryController : getAllCategories() : Start ");
             List<CategoryDto> allCategories= categoryService.getAllCategory();
@@ -63,7 +61,6 @@ public class CategoryController implements CategoryEndpoint
     }
 
     @Override
-    @Cacheable("getActiveCategory")
     public ResponseEntity<?> getActiveCategories(){
             log.info("CategoryController : getActiveCategories() : Start ");
         List<CategoryResponseDto> activeCategory= categoryService.getActiveCategory();
