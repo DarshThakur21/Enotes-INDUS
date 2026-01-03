@@ -3,6 +3,7 @@ package com.enotes.Enotes_INDUS.controller;
 
 import com.enotes.Enotes_INDUS.dto.TodoDto;
 import com.enotes.Enotes_INDUS.endpoints.TodoEndpoint;
+import com.enotes.Enotes_INDUS.model.enums.Status;
 import com.enotes.Enotes_INDUS.service.TodoService;
 import com.enotes.Enotes_INDUS.utils.CommonUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -113,5 +114,35 @@ public class TodoController implements TodoEndpoint
             e.printStackTrace();
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public ResponseEntity<?> deleteTodo(Integer todoId) {
+       try {
+       todoService.deleteTodo(todoId);
+       return CommonUtil.createBuildResponse("Delete Success ", HttpStatus.OK);
+       }catch (Exception e) {
+           log.error("Todo  not deleted");
+           e.printStackTrace();
+           throw new RuntimeException(e);
+       }
+    }
+
+    @Override
+    public ResponseEntity<?> changeStatus(Integer id, Status status) {
+        try{
+         Boolean stat  =   todoService.changeStatus(id, status);
+         if(!stat){
+                return  CommonUtil.createErrorResponseMessage("status cannot be changed",HttpStatus.BAD_REQUEST);
+         }
+         return  CommonUtil.createBuildResponseMessage("Status changed Success",HttpStatus.OK);
+
+
+        } catch (Exception e) {
+            log.error("Status change withhold");
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+
     }
 }

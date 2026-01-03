@@ -175,11 +175,12 @@ public class NotesController implements NotesEndpoint {
     public ResponseEntity<?> allFavouriteNotes() throws ResourceNotFound {
         log.info("NotesController : allFavouriteNotes() : Start");
 
-       List<FavouriteNotesDto> favouriteNotesDtoList= notesService.allFavouriteNotes();
+       List<FavouriteNotesDto> favouriteNotesDtoList = notesService.allFavouriteNotes();
        if(CollectionUtils.isEmpty(favouriteNotesDtoList)){
            log.info("Favourite List not found");
         return CommonUtil.createErrorResponseMessage("List not found",HttpStatus.NOT_FOUND);
        }
+
         log.info("Favourite List found");
         log.info("NotesController : allFavouriteNotes() : End");
         return CommonUtil.createBuildResponse(favouriteNotesDtoList,HttpStatus.OK);

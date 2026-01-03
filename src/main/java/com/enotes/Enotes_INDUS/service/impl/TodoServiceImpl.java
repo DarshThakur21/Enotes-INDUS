@@ -126,10 +126,31 @@ public class TodoServiceImpl implements TodoService {
     public List<TodoDto> getByStatus(String status) {
         log.info("TodoServiceImpl : getByStatus() : Start");
         Status statusValue=Status.valueOf(status.toUpperCase());
-        List<Todo> todo=todoRepo.findByStatus(statusValue);
+        int userId= CommonUtil.getLoggedInUser().getId();
+        List<Todo> todo=todoRepo.findByStatusAndUserId(statusValue,userId);
         List<TodoDto> todoDtoList=todo.stream().map(t -> modelMapper.map(t, TodoDto.class)).toList();
         log.info("TodoServiceImpl : getByStatus() : End");
         return todoDtoList;
 
+    }
+
+    @Override
+    public void deleteTodo(Integer todoId) {
+        Todo todo=todoRepo.findById(todoId).orElseThrow(()->new RuntimeException("Todo not found"));
+        if(ObjectUtils.isEmpty(todo)){
+           return;
+        }
+        todoRepo.delete(todo);
+    }
+
+    @Override
+    public Boolean changeStatus(Integer id, Status status) {
+        Todo todo=todoRepo.findById(id).orElseThrow(()->new RuntimeException("Todo not found"));
+        if(ObjectUtils.isEmpty(todo)){
+            return false;
+        }
+        todo.setStatus(status);
+        todoRepo.save(todo);
+        return true;
     }
 }

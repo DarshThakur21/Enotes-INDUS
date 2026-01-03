@@ -19,4 +19,7 @@ public interface TodoRepo extends JpaRepository<Todo,Integer> {
 
     @Query("select t from Todo t where t.status=:status ")
     List<Todo> findByStatus(@Param("status") Status status);
+
+    @Query("SELECT t FROM Todo t WHERE t.status=:statusValue AND t.createdBy=:userId")
+    List<Todo> findByStatusAndUserId(Status statusValue, int userId);
 }

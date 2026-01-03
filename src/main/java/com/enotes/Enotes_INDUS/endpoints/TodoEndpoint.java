@@ -1,6 +1,7 @@
 package com.enotes.Enotes_INDUS.endpoints;
 
 import com.enotes.Enotes_INDUS.dto.TodoDto;
+import com.enotes.Enotes_INDUS.model.enums.Status;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -26,5 +27,13 @@ public interface TodoEndpoint {
     @GetMapping("/by-status/{status}")
     @PreAuthorize(ROLE_USER)
     public ResponseEntity<?> getTodoByStatus(@PathVariable String status);
+
+    @DeleteMapping("/delete/{todoId}")
+    @PreAuthorize(ROLE_USER)
+    public ResponseEntity<?> deleteTodo(@PathVariable Integer todoId);
+
+    @PutMapping("/{id}/status")
+    @PreAuthorize(ROLE_USER)
+    public ResponseEntity<?> changeStatus(@PathVariable Integer id,@RequestBody Status status);
 
 }

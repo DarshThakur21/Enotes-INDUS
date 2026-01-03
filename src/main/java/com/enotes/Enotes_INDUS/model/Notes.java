@@ -36,7 +36,7 @@ public class Notes extends BaseModel {
     private Boolean isDeleted;
 
     @Column(name = "deleted_on")
-    private LocalDateTime deletedOn;
+    private Date deletedOn;
 
 
 //    private Integer userId;

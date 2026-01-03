@@ -39,7 +39,7 @@ public class NotesDto  {
     private Boolean isDeleted;
 
 
-    private LocalDateTime deletedOn;
+    private Date deletedOn;
 
 
     private FileDetailsDto fileDetails;

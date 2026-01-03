@@ -303,7 +303,7 @@ public class NotesServiceImpl implements NotesService {
 
 
         existNotes.setIsDeleted(Boolean.TRUE);
-        existNotes.setDeletedOn(LocalDateTime.now());
+        existNotes.setDeletedOn(new Date());
         log.info("delete success");
         log.info("NotesServiceImpl : deleteNotes() : End");
         notesRepository.save(existNotes);
@@ -384,6 +384,10 @@ public class NotesServiceImpl implements NotesService {
 
         int userId= CommonUtil.getLoggedInUser().getId();
         Notes existNotes=notesRepository.findById(notesId).orElseThrow(()->new ResourceNotFound("notes id invalid notes not found"));
+        Boolean alreadyPresentInfav=favouriteNotesRepository.existsByUserIdAndNotesId(userId, notesId);
+        if(alreadyPresentInfav){
+            throw new ResourceNotFound("note was already favourite");
+        }
         FavouriteNotes favouriteNotes=FavouriteNotes.builder()
                 .notes(existNotes)
                 .userId(userId)
@@ -406,11 +410,6 @@ public class NotesServiceImpl implements NotesService {
     }
 
     @Override
-    @Cacheable(
-            cacheNames = "UserFavouriteNotes",
-            key = "T(com.enotes.Enotes_INDUS.util.CommonUtil).getLoggedInUser().getId()"
-    )
-
     public List<FavouriteNotesDto> allFavouriteNotes() {
         log.info("NotesServiceImpl : allFavouriteNotes() : Start");
 
@@ -418,9 +417,9 @@ public class NotesServiceImpl implements NotesService {
 
        List<FavouriteNotes> favouriteNotesList= favouriteNotesRepository.findByUserId(userId);
         List<FavouriteNotesDto> favouriteNotesDtoList = favouriteNotesList.stream()
+                .filter(fav -> fav.getNotes() != null)
                 .map(fav -> {
                     FavouriteNotesDto dto = mapper.map(fav, FavouriteNotesDto.class);
-                    // manually map nested Notes → NotesDto
                     dto.setNotesDto(mapper.map(fav.getNotes(), NotesDto.class));
                     return dto;
                 })
