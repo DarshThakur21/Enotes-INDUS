@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -17,7 +18,7 @@ import java.util.Date;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class NotesDto  {
+public class NotesDto implements Serializable {
     private  Integer id;
 
     private String title;
@@ -50,7 +51,7 @@ public class NotesDto  {
     @Setter
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class FileDetailsDto{
+    public static class FileDetailsDto implements Serializable {
         private  Integer id;
         private  String originalFileName;
         private  String displayFileName;
@@ -62,7 +63,7 @@ public class NotesDto  {
     @Setter
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class CategoryDto{
+    public static class CategoryDto implements Serializable{
         private  Integer id;
         private String name;
     }

@@ -85,11 +85,17 @@ public class UserServiceImpl implements UserService {
 //                        "<a href='[[url]]'>Click Here!!!</a><br><br>" +
                         "Thank you!";
 
-
-        String verifyUrl= UriComponentsBuilder.fromHttpUrl(url+"/api/v1/home/email-verify")
+        String frontendUrl = "http://localhost:5173";
+        String verifyUrl = UriComponentsBuilder
+                .fromHttpUrl(frontendUrl + "/reset-password")
                 .queryParam("uid", user.getId())
                 .queryParam("resetCode", user.getAccountStatus().getPasswordResetToken())
                 .toUriString();
+
+//        String verifyUrl= UriComponentsBuilder.fromHttpUrl(url+"/api/v1/home/email-verify")
+//                .queryParam("uid", user.getId())
+//                .queryParam("resetCode", user.getAccountStatus().getPasswordResetToken())
+//                .toUriString();
 
         msg=msg.replace("[[firstname]]",user.getFirstName());
         msg=msg.replace("[[lastname]]",user.getLastName());

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import static com.enotes.Enotes_INDUS.utils.Constants.ROLE_ADMIN;
+import static com.enotes.Enotes_INDUS.utils.Constants.ROLE_USER;
 
 @RequestMapping("/api/v1/user")
 public interface UserEndpoint {
@@ -18,5 +19,6 @@ public interface UserEndpoint {
     public ResponseEntity<?> getAllUserProfiles();
 
     @PostMapping("/change-password")
+    @PreAuthorize(ROLE_USER)
     public ResponseEntity<?> changePassword(@RequestBody PasswordChangeRequest passwordChangeRequest);
 }

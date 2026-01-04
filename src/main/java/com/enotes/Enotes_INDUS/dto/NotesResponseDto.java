@@ -2,6 +2,7 @@ package com.enotes.Enotes_INDUS.dto;
 
 import lombok.*;
 
+import java.io.Serializable;
 import java.util.List;
 
 
@@ -11,7 +12,7 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
-public class NotesResponseDto {
+public class NotesResponseDto implements Serializable {
     private List<NotesDto> notesDtoList;
     private Integer pageNo;
     private Integer pageSize;
