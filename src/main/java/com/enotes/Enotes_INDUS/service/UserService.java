@@ -1,7 +1,9 @@
 package com.enotes.Enotes_INDUS.service;
 
+import com.enotes.Enotes_INDUS.dto.EditUserDto;
 import com.enotes.Enotes_INDUS.dto.PasswordChangeRequest;
 import com.enotes.Enotes_INDUS.dto.PasswordResetRequestDto;
+import com.enotes.Enotes_INDUS.dto.UserDto;
 import com.enotes.Enotes_INDUS.exceptions.RegisterException;
 import com.enotes.Enotes_INDUS.exceptions.ResourceNotFound;
 import jakarta.mail.MessagingException;
@@ -19,4 +21,6 @@ public interface UserService {
     void sendEmailPasswordReset(String email, HttpServletRequest request) throws ResourceNotFound, MessagingException, UnsupportedEncodingException;
 
     void verifyReset(Integer uid, String resetCode) throws RegisterException, PasswordRequiredException, ResourceNotFound;
+
+    Boolean editUserDetail(EditUserDto userDto);
 }

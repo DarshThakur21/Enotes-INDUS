@@ -1,8 +1,6 @@
 package com.enotes.Enotes_INDUS.service.impl;
 
-import com.enotes.Enotes_INDUS.dto.EmailRequest;
-import com.enotes.Enotes_INDUS.dto.PasswordChangeRequest;
-import com.enotes.Enotes_INDUS.dto.PasswordResetRequestDto;
+import com.enotes.Enotes_INDUS.dto.*;
 import com.enotes.Enotes_INDUS.exceptions.RegisterException;
 import com.enotes.Enotes_INDUS.exceptions.ResourceNotFound;
 import com.enotes.Enotes_INDUS.model.AccountStatus;
@@ -44,8 +42,8 @@ public class UserServiceImpl implements UserService {
     public Boolean changePassword(PasswordChangeRequest passwordChangeRequest) {
         log.info("UserServiceImpl : changePassword() : Start ");
         User loggedInUser = CommonUtil.getLoggedInUser();
-        Boolean passwordMatch=passwordEncoder.matches(passwordChangeRequest.getOldPassword(),loggedInUser.getPassword());
-        if(!passwordMatch){
+        Boolean passwordMatch = passwordEncoder.matches(passwordChangeRequest.getOldPassword(), loggedInUser.getPassword());
+        if (!passwordMatch) {
             log.info("Cannot change password");
             return false;
         }
@@ -54,29 +52,30 @@ public class UserServiceImpl implements UserService {
         userRepo.save(loggedInUser);
         log.info("Password change success");
         log.info("UserServiceImpl : changePassword() : End");
-        return  true;
+        return true;
     }
 
     @Override
     public void sendEmailPasswordReset(String email, HttpServletRequest request) throws ResourceNotFound, MessagingException, UnsupportedEncodingException {
         log.info("UserServiceImpl : sendEmailPasswordReset() : Start");
 
-        Optional<User> userOptional=userRepo.findByEmail(email);
-        User user=userOptional.get();
-        if(ObjectUtils.isEmpty(user)){
+        Optional<User> userOptional = userRepo.findByEmail(email);
+        User user = userOptional.get();
+        if (ObjectUtils.isEmpty(user)) {
             log.error("Invalid email found please found again");
             throw new ResourceNotFound("Email Id does not exist INVALID EMAIL");
         }
 
-        String passwordResetToken=UUID.randomUUID().toString();
+        String passwordResetToken = UUID.randomUUID().toString();
         user.getAccountStatus().setPasswordResetToken(passwordResetToken);
-        User updateUser=userRepo.save(user);
-        emailForPasswordReset(updateUser,request );
+        User updateUser = userRepo.save(user);
+        emailForPasswordReset(updateUser, request);
 
         log.info("UserServiceImpl : sendEmailPasswordReset() : End");
     }
-    private void emailForPasswordReset(User user,HttpServletRequest request)throws MessagingException, UnsupportedEncodingException {
-        String url=CommonUtil.getUrl(request);
+
+    private void emailForPasswordReset(User user, HttpServletRequest request) throws MessagingException, UnsupportedEncodingException {
+        String url = CommonUtil.getUrl(request);
         String msg =
                 "Hi, <b>[[firstname]] [[lastname]]</b><br>" +
                         "Your account requested for password reset.<br><br>" +
@@ -97,13 +96,12 @@ public class UserServiceImpl implements UserService {
 //                .queryParam("resetCode", user.getAccountStatus().getPasswordResetToken())
 //                .toUriString();
 
-        msg=msg.replace("[[firstname]]",user.getFirstName());
-        msg=msg.replace("[[lastname]]",user.getLastName());
-        msg=msg.replace("[[url]]",verifyUrl);
+        msg = msg.replace("[[firstname]]", user.getFirstName());
+        msg = msg.replace("[[lastname]]", user.getLastName());
+        msg = msg.replace("[[url]]", verifyUrl);
 
 
-
-        EmailRequest emailRequest=new EmailRequest();
+        EmailRequest emailRequest = new EmailRequest();
         emailRequest.setTo(user.getEmail());
         emailRequest.setTitle("RESET LINK FOR PASSWORD");
         emailRequest.setSubject("RESET");
@@ -117,14 +115,31 @@ public class UserServiceImpl implements UserService {
     @Override
     public void verifyReset(Integer uid, String resetCode) throws PasswordRequiredException, ResourceNotFound {
         log.info("UserServiceImpl : verifyReset() : Start");
-        Optional<User> userOptional=userRepo.findById(uid);
-        User user=userOptional.get();
-        if(ObjectUtils.isEmpty(user)){
+        Optional<User> userOptional = userRepo.findById(uid);
+        User user = userOptional.get();
+        if (ObjectUtils.isEmpty(user)) {
             throw new ResourceNotFound("invalid user");
         }
-        verifyCode(user,resetCode);
+        verifyCode(user, resetCode);
         log.info("UserServiceImpl : verifyReset() : End");
     }
+
+    @Override
+    public Boolean editUserDetail(EditUserDto userDto) {
+        Optional<User> userOptional = userRepo.findById(userDto.getId());
+        User user = userOptional.get();
+        if (ObjectUtils.isEmpty(user)) {
+            return false;
+        }
+        user.setFirstName(userDto.getFirstName());
+        user.setLastName(userDto.getLastName());
+        user.setEmail(userDto.getEmail());
+        user.setMobileNo(userDto.getMobileNo());
+        userRepo.save(user);
+    return true;
+
+    }
+
 
     private void verifyCode(User user, String resetCode) {
         String userCode= user.getAccountStatus().getPasswordResetToken();

@@ -18,8 +18,8 @@ public class UserDto {
     private String firstName;
     private String lastName;
     private String email;
-    private String password;
     private String mobileNo;
+    private String password;
     private List<Role> role;
 
     @Data

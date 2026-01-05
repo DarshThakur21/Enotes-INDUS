@@ -1,6 +1,8 @@
 package com.enotes.Enotes_INDUS.controller;
 
+import com.enotes.Enotes_INDUS.dto.EditUserDto;
 import com.enotes.Enotes_INDUS.dto.PasswordChangeRequest;
+import com.enotes.Enotes_INDUS.dto.UserDto;
 import com.enotes.Enotes_INDUS.dto.UserResponseDto;
 import com.enotes.Enotes_INDUS.endpoints.UserEndpoint;
 import com.enotes.Enotes_INDUS.model.User;
@@ -45,6 +47,17 @@ public class UserController implements UserEndpoint {
         }
         log.info("UserController : changePassword() : End");
         return CommonUtil.createErrorResponseMessage("Password Couldnt be change please try again later", HttpStatus.FORBIDDEN);
+
+    }
+
+    @Override
+    public ResponseEntity<?> editUser(EditUserDto userDto) {
+        Boolean success=userService.editUserDetail(userDto);
+        if(!success){
+            return CommonUtil.createErrorResponse("User not found", HttpStatus.BAD_REQUEST);
+
+        }
+        return CommonUtil.createBuildResponseMessage("User details  Changed successfully", HttpStatus.OK);
 
     }
 
