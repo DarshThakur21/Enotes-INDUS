@@ -1,6 +1,7 @@
 package com.enotes.Enotes_INDUS.service.impl;
 
 
+import com.enotes.Enotes_INDUS.config.security.CustomUserDetails;
 import com.enotes.Enotes_INDUS.model.FileDetails;
 import com.enotes.Enotes_INDUS.model.Notes;
 import com.enotes.Enotes_INDUS.repository.NotesRepository;
@@ -31,6 +32,10 @@ public class NotesAiServiceImpl {
 
     @Autowired
     private NotesRepository notesRepository;
+
+
+    @Autowired
+    private  ChatContextStore contextStore;
 
 public String summarizeNote(Integer id) throws IOException {
     Notes notes=notesRepository.getById(id);
@@ -70,5 +75,22 @@ public String summarizeNote(Integer id) throws IOException {
         conversationMemory.addResponse(conversationId,response);
         return response;
     }
+
+    public String googleSearch(String question){
+        String prompt = promptBuilder.builderPromptGoogle(question);
+
+        String username = CustomUserDetails.getUsernameForSearch();
+        String fullPrompt = contextStore.append(
+                username,
+                "User: " + prompt
+        );
+
+        String response = client.generate(fullPrompt);
+
+        contextStore.append(username, "AI: " + response);
+
+        return response;
+    }
+
 
 }

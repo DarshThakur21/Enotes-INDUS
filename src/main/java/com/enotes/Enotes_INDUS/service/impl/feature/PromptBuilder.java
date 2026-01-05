@@ -30,4 +30,21 @@ public class PromptBuilder
                 pdfText != null ? "PDF Content:\n" + pdfText : "No PDF attached"
                 );
     }
+
+    public String builderPromptGoogle(String question){
+        return """
+            You are an intelligent AI assistant similar to Google Search.
+            
+            Instructions:
+            - Answer any question clearly
+            - Be factual and concise
+            - Explain step-by-step if technical
+            - If unsure, say you are unsure
+            
+            User Question:
+            %s
+        """
+                .formatted(question);
+    }
+
 }

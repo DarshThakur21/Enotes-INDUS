@@ -1,8 +1,10 @@
 package com.enotes.Enotes_INDUS.config.security;
 import com.enotes.Enotes_INDUS.model.User;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.core.GrantedAuthority;
 //import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.AbstractList;
@@ -47,4 +49,13 @@ public class CustomUserDetails implements UserDetails {
     public String getUsername() {
     return user.getEmail();
     }
+
+    public static String getUsernameForSearch() {
+        return SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getName();
+    }
+
+
 }
