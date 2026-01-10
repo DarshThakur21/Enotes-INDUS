@@ -26,6 +26,7 @@ public class AiController {
 
 
     @PostMapping(value = "/ai/{id}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize(ROLE_USER)
     public ResponseEntity summaryAi(@PathVariable Integer id) throws IOException {
      String result=notesAiService.summarizeNote(id);
 
