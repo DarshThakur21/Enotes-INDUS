@@ -40,6 +40,12 @@ public class DockerRunner {
                     "--cpus=1",
                     "--pids-limit=64",
                     "--read-only",
+                    // Writable but NOT executable
+                    "--tmpfs", "/tmp:rw,noexec,nosuid,size=64m",
+
+                    // Writable AND executable (for C/C++)
+//                    "--tmpfs", "/run:rw,exec,nosuid,size=32m",
+                    "--tmpfs", "/run:rw,exec,nosuid,size=32m,uid=1000,gid=1000",
                     "--security-opt=no-new-privileges",
                     "-e", "INPUT=" + input,
 
