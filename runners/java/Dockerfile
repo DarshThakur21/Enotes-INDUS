@@ -10,4 +10,4 @@ USER sandbox
 WORKDIR /app
 
 # 4️⃣ Execute user code
-CMD ["sh", "-c", "javac Main.java && echo \"$INPUT\" | java Main"]
+CMD ["sh", "-c", "javac -d /tmp Main.java && echo \"$INPUT\" | java -cp /tmp Main"]
