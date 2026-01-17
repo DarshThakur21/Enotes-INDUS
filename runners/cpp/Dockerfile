@@ -6,4 +6,4 @@ USER sandbox
 
 WORKDIR /app
 
-CMD ["sh", "-c", "g++ main.cpp -o /tmp/main && echo \"$INPUT\" | /tmp/main"]
+CMD ["sh", "-c", "g++ main.cpp -o /run/main && echo \"$INPUT\" | /run/main"]
