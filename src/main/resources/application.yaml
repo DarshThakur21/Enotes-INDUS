@@ -21,6 +21,11 @@ spring:
       max-file-size: 10MB
       max-request-size: 10MB
 
+
+  jwt:
+    secret: "BGiBX8GENIcKINk+z2A75yW5FeeGZWDNUdEODj0HHrE="
+
+
   cache:
     type: redis
     host: localhost

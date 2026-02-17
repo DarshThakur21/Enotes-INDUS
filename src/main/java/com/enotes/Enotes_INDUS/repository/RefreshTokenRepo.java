@@ -1,4 +1,9 @@
 package com.enotes.Enotes_INDUS.repository;
 
-public interface RefreshTokenRepo {
+import com.enotes.Enotes_INDUS.model.RefreshToken;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface RefreshTokenRepo extends JpaRepository<RefreshToken,Integer> {
 }
