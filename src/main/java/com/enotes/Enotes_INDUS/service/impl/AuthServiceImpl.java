@@ -3,6 +3,7 @@ package com.enotes.Enotes_INDUS.service.impl;
 import com.enotes.Enotes_INDUS.config.security.CustomUserDetails;
 import com.enotes.Enotes_INDUS.dto.*;
 import com.enotes.Enotes_INDUS.model.AccountStatus;
+import com.enotes.Enotes_INDUS.model.RefreshToken;
 import com.enotes.Enotes_INDUS.model.Role;
 import com.enotes.Enotes_INDUS.model.User;
 import com.enotes.Enotes_INDUS.repository.RoleRepo;
@@ -10,6 +11,7 @@ import com.enotes.Enotes_INDUS.repository.UserRepo;
 import com.enotes.Enotes_INDUS.service.JwtService;
 import com.enotes.Enotes_INDUS.service.AuthService;
 import com.enotes.Enotes_INDUS.service.EmailService;
+import com.enotes.Enotes_INDUS.service.RefreshTokenServiceImpl;
 import com.enotes.Enotes_INDUS.utils.Validations;
 import jakarta.mail.MessagingException;
 import lombok.extern.slf4j.Slf4j;
@@ -31,20 +33,17 @@ import java.util.UUID;
 @Service
 public class AuthServiceImpl implements AuthService {
 
-
     @Autowired
     private UserRepo userRepo;
 
     @Autowired
     private ModelMapper mapper;
 
-
     @Autowired
     private RoleRepo roleRepo;
 
     @Autowired
     private Validations validations;
-
 
     @Autowired
     private EmailService emailService;
@@ -58,13 +57,11 @@ public class AuthServiceImpl implements AuthService {
     @Autowired
     private JwtService jwtService;
 
-
-
-
+    @Autowired
+    private RefreshTokenServiceImpl refreshTokenService;
 
     @Override
     public Boolean registerUser(UserDto userDto,String url) throws MessagingException, UnsupportedEncodingException {
-
 
         validations.userValidation(userDto);
         setRole(userDto);
@@ -82,11 +79,8 @@ public class AuthServiceImpl implements AuthService {
 //            sendEmail email
             emailSend(saveUser,url);
 
-
             return true;
-
         }
-
         return false;
     }
 
@@ -108,8 +102,6 @@ public class AuthServiceImpl implements AuthService {
 //        msg=msg.replace("[[url]]","http://localhost:8080/enotes/api/v1/home/verify?uid="+saveUser.getId()+"&code="+saveUser.getAccountStatus().getVerificationCode());
         msg=msg.replace("[[url]]",verifyUrl);
 
-
-
         EmailRequest request=new EmailRequest();
         request.setTo(saveUser.getEmail());
         request.setTitle("Account Creation Confirmation");
@@ -122,31 +114,25 @@ public class AuthServiceImpl implements AuthService {
     private void setRole(UserDto userDto) {
         List<Role> roleList=userDto.getRole().stream().map(r->roleRepo.findByRole(r.getRole())
                 .orElseThrow(() -> new RuntimeException("Invalid role id"))).toList();
-
         userDto.setRole(roleList);
-
     }
-
-
-//    private String hashUserPassword(String password) {
-//
-//    }
 
     @Override
     public LoginResponse loginUser(LoginDto loginDto) {
-//        log.info("AuthServiceImpl : loginUser() : start ");
+
         Authentication authentication =manager.authenticate(new UsernamePasswordAuthenticationToken(loginDto.getEmail(),loginDto.getPassword()));
     
         if(authentication.isAuthenticated()){
             CustomUserDetails customUserDetails= (CustomUserDetails) authentication.getPrincipal();
             String token= jwtService.generateToken(customUserDetails.getUser());
-//            log.info("AuthServiceImpl : loginUser() : success");
+            RefreshToken RefreshToken=refreshTokenService.createRefreshToken(customUserDetails.getUser().getId());
+
             return LoginResponse.builder()
                     .userDto(mapper.map(customUserDetails.getUser(), UserResponseDto.class))
                     .token(token)
+                    .refreshToken(RefreshToken.getToken())
                     .build();
         }
-//        log.info("AuthServiceImpl : cannot be authenticated");
         return null;
     }
 }
