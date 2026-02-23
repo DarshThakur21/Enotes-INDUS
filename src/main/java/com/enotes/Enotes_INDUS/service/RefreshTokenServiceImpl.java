@@ -1,5 +1,6 @@
 package com.enotes.Enotes_INDUS.service;
 
+import com.enotes.Enotes_INDUS.exceptions.JWTAuthenticationException;
 import com.enotes.Enotes_INDUS.model.RefreshToken;
 import com.enotes.Enotes_INDUS.model.User;
 import com.enotes.Enotes_INDUS.repository.RefreshTokenRepo;
@@ -37,4 +38,20 @@ public class RefreshTokenServiceImpl {
         return refreshTokenRepo.findByToken(token);
     }
 
+    public RefreshToken verifyExpiration(RefreshToken token){
+        if(token.getExpiryDate().isBefore(Instant.now())){
+            refreshTokenRepo.delete(token);
+            throw new JWTAuthenticationException(
+                    "Refresh token has expired. Please log in again."
+            );
+        }
+        return token;
+    }
+
+    public void deleteByUserId(Integer userId) {
+        User user = userRepo.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+        refreshTokenRepo.findByUserId(userId)
+                .ifPresent(refreshTokenRepo::delete);
+    }
 }
