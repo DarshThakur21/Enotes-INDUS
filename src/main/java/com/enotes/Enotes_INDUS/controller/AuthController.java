@@ -1,12 +1,11 @@
 package com.enotes.Enotes_INDUS.controller;
 
 
-import com.enotes.Enotes_INDUS.dto.LoginDto;
-import com.enotes.Enotes_INDUS.dto.LoginResponse;
-import com.enotes.Enotes_INDUS.dto.UserDto;
+import com.enotes.Enotes_INDUS.dto.*;
 import com.enotes.Enotes_INDUS.endpoints.AuthEndpoint;
 import com.enotes.Enotes_INDUS.exceptions.RegisterException;
 import com.enotes.Enotes_INDUS.service.AuthService;
+import com.enotes.Enotes_INDUS.service.RefreshTokenServiceImpl;
 import com.enotes.Enotes_INDUS.utils.CommonUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
@@ -25,6 +23,9 @@ public class AuthController implements AuthEndpoint {
 
     @Autowired
     private AuthService authService;
+
+    @Autowired
+    private RefreshTokenServiceImpl refreshTokenService;
 
     @Override
     public ResponseEntity<?> registerUser(UserDto userDto, HttpServletRequest httpRequest) throws RegisterException {
@@ -58,4 +59,14 @@ public class AuthController implements AuthEndpoint {
 //        log.info("AuthController : loginUser() : END");
             return CommonUtil.createBuildResponse(loginResponse, HttpStatus.OK);
     }
+    @PostMapping("/refresh-token")
+    public ResponseEntity<RefreshTokenResponse> refreshToken(@RequestBody RefreshTokenRequest request) {
+        RefreshTokenResponse refreshTokenResponse=authService.refreshTokenResponse(request);
+        if(ObjectUtils.isEmpty(refreshTokenResponse)){
+            return (ResponseEntity<RefreshTokenResponse>) CommonUtil.createBuildResponseMessage("cant refersh token", HttpStatus.BAD_REQUEST);
+        }
+
+        return (ResponseEntity<RefreshTokenResponse>) CommonUtil.createBuildResponse(refreshTokenResponse,HttpStatus.OK);
+    }
+
 }

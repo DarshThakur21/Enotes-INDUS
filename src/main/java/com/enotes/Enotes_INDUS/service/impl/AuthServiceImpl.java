@@ -2,6 +2,7 @@ package com.enotes.Enotes_INDUS.service.impl;
 
 import com.enotes.Enotes_INDUS.config.security.CustomUserDetails;
 import com.enotes.Enotes_INDUS.dto.*;
+import com.enotes.Enotes_INDUS.exceptions.JWTAuthenticationException;
 import com.enotes.Enotes_INDUS.model.AccountStatus;
 import com.enotes.Enotes_INDUS.model.RefreshToken;
 import com.enotes.Enotes_INDUS.model.Role;
@@ -134,5 +135,26 @@ public class AuthServiceImpl implements AuthService {
                     .build();
         }
         return null;
+    }
+
+    public RefreshTokenResponse refreshTokenResponse(RefreshTokenRequest request){
+        String incomingToken= request.getToken();
+
+        RefreshToken refreshToken = refreshTokenService.findToken(incomingToken)
+                .orElseThrow(() -> new JWTAuthenticationException(
+                        "Refresh token not found. Please log in again."));
+        if(ObjectUtils.isEmpty(refreshTokenService.verifyExpiration(refreshToken))){
+               throw new RuntimeException("token not valid login again");
+        }
+        User user=refreshToken.getUser();
+        String accessToken=jwtService.generateToken(user);
+        refreshTokenService.deleteByUserId(user.getId());
+
+        RefreshToken newRefreshToken=refreshTokenService.createRefreshToken(user.getId());
+
+        RefreshTokenResponse refreshTokenResponse=new RefreshTokenResponse();
+        refreshTokenResponse.setRefreshToken(newRefreshToken.getToken());
+        refreshTokenResponse.setAccessToken(accessToken);
+        return refreshTokenResponse;
     }
 }
