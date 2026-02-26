@@ -5,10 +5,11 @@ server:
 
 gemini:
   api:
-    key: 
+    key:
     url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent
 
-
+jwt:
+  secret: "BGiBX8GENIcKINk+z2A75yW5FeeGZWDNUdEODj0HHrE="
 
 spring:
   application:
@@ -20,11 +21,6 @@ spring:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
-
-
-  jwt:
-    secret: "BGiBX8GENIcKINk+z2A75yW5FeeGZWDNUdEODj0HHrE="
-
 
   cache:
     type: redis

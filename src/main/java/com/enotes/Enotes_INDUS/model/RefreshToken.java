@@ -9,9 +9,9 @@ import lombok.NoArgsConstructor;
 import java.time.Instant;
 
 @Data
-@Entity
 @AllArgsConstructor
 @NoArgsConstructor
+@Entity
 public class RefreshToken {
 
     @Id
