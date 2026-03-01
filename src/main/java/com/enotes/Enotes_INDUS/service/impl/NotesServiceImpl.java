@@ -1,5 +1,6 @@
 package com.enotes.Enotes_INDUS.service.impl;
 
+import com.enotes.Enotes_INDUS.config.S3Config;
 import com.enotes.Enotes_INDUS.dto.FavouriteNotesDto;
 import com.enotes.Enotes_INDUS.dto.FileDownloadDto;
 import com.enotes.Enotes_INDUS.dto.NotesDto;
@@ -30,6 +31,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.services.s3.S3Client;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -70,7 +72,11 @@ public class NotesServiceImpl implements NotesService {
     @Autowired
     private UserExportToExcelService userExportToExcelService;
 
+    @Autowired
+    private S3Client s3Client;
 
+    @Value("${aws.s3.bucket}")
+    private String S3bucket;
 
 
     @Override

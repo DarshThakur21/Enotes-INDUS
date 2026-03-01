@@ -95,7 +95,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
     show-sql: true
     properties:
       hibernate:
@@ -108,6 +108,15 @@ spring:
       enabled: true
 
 ---
+aws:
+  s3:
+    bucket: enotes-bucket
+    endpoint: http://localhost:4566
+    region: us-east-1
+    accessKey: test
+    secretKey: test
+
+
 
 
 spring:
@@ -123,7 +132,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
     show-sql: true
     properties:
       hibernate:
