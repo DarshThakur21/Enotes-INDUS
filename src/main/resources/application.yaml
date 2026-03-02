@@ -74,6 +74,13 @@ email:
     from: dummysingh2001002@gmail.com
 
 
+aws:
+  s3:
+    bucket: enotes-bucket
+    endpoint: http://localhost:4566
+    region: us-east-1
+    accessKey: test
+    secretKey: test
 
 
 
@@ -108,13 +115,7 @@ spring:
       enabled: true
 
 ---
-aws:
-  s3:
-    bucket: enotes-bucket
-    endpoint: http://localhost:4566
-    region: us-east-1
-    accessKey: test
-    secretKey: test
+
 
 
 
