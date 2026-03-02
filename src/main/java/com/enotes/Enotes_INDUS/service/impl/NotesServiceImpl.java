@@ -31,7 +31,12 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.core.ResponseBytes;
+import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -169,15 +174,28 @@ public class NotesServiceImpl implements NotesService {
             String extension= FilenameUtils.getExtension(originalFileName);
             String randomString= UUID.randomUUID().toString();
             String uploadFileName=randomString+"."+extension;
+            int userId=CommonUtil.getLoggedInUser().getId();
 
             List<String> extentions= Arrays.asList("jpg","png","pdf","xlsx","docx","txt");
+
             if(!extentions.contains(extension)){
                 throw new IllegalArgumentException("invalid file format: only upload .jpg .png .pdf .xlsx");
             }
-            File saveFile=new File(uploadPath);
-            if(!saveFile.exists()){
-                saveFile.mkdir();
-            }
+
+            String S3Key="users/"+userId+"/notes/"+uploadFileName;
+            s3Client.putObject(
+                PutObjectRequest.builder()
+                        .bucket(S3bucket)
+                        .key(S3Key)
+                        .contentType(file.getContentType())
+                        .build(),
+                    RequestBody.fromInputStream(file.getInputStream(),file.getSize())
+            );
+
+//            File saveFile=new File(uploadPath);
+//            if(!saveFile.exists()){
+//                saveFile.mkdir();
+//            }
             String storepath=uploadPath.concat(uploadFileName);
             long upload=Files.copy(file.getInputStream(), Paths.get(storepath)); //converting the files to store into the folder
             if(upload!=0){
@@ -186,7 +204,7 @@ public class NotesServiceImpl implements NotesService {
                 fileDetails.setDisplayFileName(displayname(originalFileName));
                 fileDetails.setUploadFileName(uploadFileName);
                 fileDetails.setFileSize(file.getSize());
-                fileDetails.setFilePath(storepath);
+                fileDetails.setFilePath(S3Key);
                 FileDetails savedFileDetails= fileRepository.save(fileDetails);
 
                 return  savedFileDetails;
@@ -557,10 +575,18 @@ public class NotesServiceImpl implements NotesService {
     @Override
     public byte[] downloadFile(FileDetails fileDetails) throws Exception {
         log.info("NotesServiceImpl : downloadFile() : Start");
-        InputStream inputStream=new FileInputStream(fileDetails.getFilePath());
-        byte[] byteData= StreamUtils.copyToByteArray(inputStream);
-        log.info("NotesServiceImpl : downloadFile() : End");
-            return byteData;
+
+        ResponseBytes<GetObjectResponse> objectBytes = s3Client.getObjectAsBytes(
+                GetObjectRequest.builder()
+                        .bucket(S3bucket)
+                        .key(fileDetails.getFilePath()) // filePath now holds S3 key
+                        .build()
+        );
+//        InputStream inputStream=new FileInputStream(fileDetails.getFilePath());
+//        byte[] byteData= StreamUtils.copyToByteArray(inputStream);
+//        log.info("NotesServiceImpl : downloadFile() : End");
+//            return byteData;
+        return objectBytes.asByteArray();
     }
 
     @Override
