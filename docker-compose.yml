@@ -1,6 +1,25 @@
 version: "3.8"
 
 services:
+  enotes-database:
+    image: postgres:16
+    container_name: enotes-db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      TZ: ${POSTGRES_TZ}
+      PGTZ: ${POSTGRES_PGTZ}
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    volumes:
+      - ${POSTGRES_DATA_PATH}:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   localstack:
     image: localstack/localstack:latest
     container_name: localstack
@@ -13,6 +32,3 @@ services:
       - PERSISTENCE=1
     volumes:
       - "D:/Project2/Enotes/Enotes-INDUS/s3data:/var/lib/localstack"
-
-
-# D:\Project2\dockerLocalstackAws\steps.pdf

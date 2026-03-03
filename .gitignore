@@ -36,3 +36,4 @@ build/
 /notes
 /excelstorage
 /doctests
+.env
