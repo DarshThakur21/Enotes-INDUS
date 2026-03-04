@@ -3,6 +3,9 @@ server:
   servlet:
     context-path: /enotes
 
+app:
+  frontend-url: http://localhost:5173
+
 gemini:
   api:
     key:

@@ -18,6 +18,7 @@ import jakarta.mail.MessagingException;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -61,6 +62,9 @@ public class AuthServiceImpl implements AuthService {
     @Autowired
     private RefreshTokenServiceImpl refreshTokenService;
 
+    @Value("${app.frontend-url}")
+    private String frontendUrl;
+
     @Override
     public Boolean registerUser(UserDto userDto,String url) throws MessagingException, UnsupportedEncodingException {
 
@@ -93,7 +97,12 @@ public class AuthServiceImpl implements AuthService {
                         "Click the link below to verify your account:<br>" +
                         "<a href='[[url]]'>Click Here!!!</a><br><br>" +
                         "Thank you!";
-        String verifyUrl=UriComponentsBuilder.fromHttpUrl(url+"/api/v1/home/verify")
+//        String verifyUrl=UriComponentsBuilder.fromHttpUrl(frontendUrl+"/api/v1/home/verify")
+//                .queryParam("uid", saveUser.getId())
+//                .queryParam("code", saveUser.getAccountStatus().getVerificationCode())
+//                .toUriString();
+        String verifyUrl = UriComponentsBuilder
+                .fromHttpUrl(frontendUrl + "/verify")
                 .queryParam("uid", saveUser.getId())
                 .queryParam("code", saveUser.getAccountStatus().getVerificationCode())
                 .toUriString();
