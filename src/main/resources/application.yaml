@@ -6,10 +6,10 @@ server:
 gemini:
   api:
     key:
-    url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent
+    url: ${GEMINI_API_URL}
 
 jwt:
-  secret: "BGiBX8GENIcKINk+z2A75yW5FeeGZWDNUdEODj0HHrE="
+  secret: ${JWT_SECRET_KEY}
 
 spring:
   application:
@@ -31,8 +31,8 @@ spring:
 
   mail:
     host: smtp.gmail.com
-    username: dummysingh2001002@gmail.com
-    password: "sxaq vzoc fvyo vjwa"
+    username: ${SPRING_EMAIL_USERNAME}
+    password: ${SPRING_EMAIL_PASSWORD}
     port: 587
     properties:
       mail:
@@ -76,9 +76,9 @@ email:
 
 aws:
   s3:
-    bucket: enotes-bucket
-    endpoint: http://localhost:4566
-    region: us-east-1
+    bucket: ${AWS_S3_BUCKET}
+    endpoint: ${LOCAL_STACK_HOST}
+    region: ${AWS_S3_REGION}
     accessKey: test
     secretKey: test
 
