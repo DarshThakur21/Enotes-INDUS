@@ -52,6 +52,9 @@ jobs:
           java-version: 21
           cache: maven
 
+      - name: Make mvnw executable
+        run: chmod +x mvnw
+
       - name: Set Environment Variables
         run: |
           echo "POSTGRES_HOST=localhost" >> $GITHUB_ENV
