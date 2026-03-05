@@ -68,7 +68,7 @@ public class AuthController implements AuthEndpoint {
                 return CommonUtil.createBuildResponseMessage("cant login", HttpStatus.BAD_REQUEST);
             }
             buildCookie(response,"access_token",loginResponse.getToken(),15 * 60,"/");
-            buildCookie(response,"refresh_token",loginResponse.getRefreshToken(), 7 * 24 * 3600,"/");
+            buildCookie(response,"refresh_token",loginResponse.getRefreshToken(), 7 * 24 * 3600,"/refresh-token");
 
             loginResponse.setToken(null);
             loginResponse.setRefreshToken(null);
