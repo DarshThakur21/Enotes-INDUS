@@ -1,0 +1,78 @@
+name: Enotes CI Pipeline
+
+on:
+  push:
+    branches: [ dev ]
+  pull_request:
+    branches: [ dev ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    services:
+
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: enotes
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres -d enotes"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+
+      localstack:
+        image: localstack/localstack:latest
+        ports:
+          - 4566:4566
+        env:
+          SERVICES: s3
+          DEFAULT_REGION: us-east-1
+
+    steps:
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: maven
+
+      - name: Set Environment Variables
+        run: |
+          echo "POSTGRES_HOST=localhost" >> $GITHUB_ENV
+          echo "POSTGRES_PORT=5432" >> $GITHUB_ENV
+          echo "POSTGRES_DB=enotes" >> $GITHUB_ENV
+          echo "POSTGRES_USER=postgres" >> $GITHUB_ENV
+          echo "POSTGRES_PASSWORD=postgres" >> $GITHUB_ENV
+          echo "LOCAL_STACK_HOST=http://localhost:4566" >> $GITHUB_ENV
+          echo "AWS_S3_BUCKET=enotes-bucket" >> $GITHUB_ENV
+          echo "AWS_S3_REGION=us-east-1" >> $GITHUB_ENV
+
+      - name: Wait for Postgres
+        run: |
+          for i in {1..30}; do
+            nc -z localhost 5432 && echo "Postgres is up!" && break
+            echo "Waiting for Postgres..."
+            sleep 2
+          done
+
+      - name: Build Application
+        run: ./mvnw clean install -DskipTests
+
+      - name: Run Tests
+        run: ./mvnw test
