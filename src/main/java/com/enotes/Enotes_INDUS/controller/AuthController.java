@@ -31,11 +31,11 @@ public class AuthController implements AuthEndpoint {
     private RefreshTokenServiceImpl refreshTokenService;
 
 
-    private void buildCookie(HttpServletResponse response,String name,String value,int age){
+    private void buildCookie(HttpServletResponse response,String name,String value,int age,String path){
         ResponseCookie cookie = ResponseCookie.from(name, value)
                 .httpOnly(true)
                 .secure(false)
-                .path("/")
+                .path(path)
                 .maxAge(age)
                 .sameSite("Lax")        // Use "None" only if on different domains entirely
                 .build();
@@ -67,8 +67,8 @@ public class AuthController implements AuthEndpoint {
             if(ObjectUtils.isEmpty(loginResponse)){
                 return CommonUtil.createBuildResponseMessage("cant login", HttpStatus.BAD_REQUEST);
             }
-            buildCookie(response,"access_token",loginResponse.getToken(),15 * 60);
-            buildCookie(response,"refresh_token",loginResponse.getRefreshToken(), 7 * 24 * 3600);
+            buildCookie(response,"access_token",loginResponse.getToken(),15 * 60,"/");
+            buildCookie(response,"refresh_token",loginResponse.getRefreshToken(), 7 * 24 * 3600,"/");
 
             loginResponse.setToken(null);
             loginResponse.setRefreshToken(null);
@@ -101,7 +101,7 @@ public class AuthController implements AuthEndpoint {
             return CommonUtil.createBuildResponseMessage("cant refresh token", HttpStatus.BAD_REQUEST);
         }
 
-        buildCookie(response, "access_token", refreshTokenResponse.getAccessToken(), 15 * 60);
+        buildCookie(response, "access_token", refreshTokenResponse.getAccessToken(), 15 * 60,"/refresh-token");
 
         return CommonUtil.createBuildResponse("Token refreshed successfully", HttpStatus.OK);
     }
