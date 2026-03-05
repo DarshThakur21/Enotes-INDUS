@@ -1,13 +1,12 @@
 package com.enotes.Enotes_INDUS.endpoints;
 
 import com.enotes.Enotes_INDUS.dto.LoginDto;
-import com.enotes.Enotes_INDUS.dto.RefreshTokenRequest;
-import com.enotes.Enotes_INDUS.dto.RefreshTokenResponse;
 import com.enotes.Enotes_INDUS.dto.UserDto;
 import com.enotes.Enotes_INDUS.exceptions.RegisterException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,10 +25,10 @@ public interface AuthEndpoint {
 
     @Operation(tags = {"User Authentication"}, summary = "Login the User")
     @PostMapping("/login")
-    public ResponseEntity<?> loginUser(@RequestBody LoginDto loginDto);
+    public ResponseEntity<?> loginUser(@RequestBody LoginDto loginDto, HttpServletResponse response);
 
     @Operation(tags = {"User Authentication"}, summary = "refresh the User refresh token")
     @PostMapping("/refresh-token")
-    public ResponseEntity<RefreshTokenResponse> refreshToken( @RequestBody RefreshTokenRequest request);
+    public ResponseEntity<?> refreshToken( HttpServletRequest request, HttpServletResponse response);
 
 }

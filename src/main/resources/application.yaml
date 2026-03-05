@@ -97,7 +97,6 @@ spring:
       on-profile: dev
 
   datasource:
-#    url: jdbc:mysql://localhost:3306/enotes
     url: jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
     username: ${POSTGRES_USER}
     password: ${POSTGRES_PASSWORD}
