@@ -31,6 +31,10 @@ spring:
       host: enotes-redis
       port: ${REDIS_PORT}
       time-to-live: 600000
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:localhost}   # ← use env var, fallback to localhost for local dev
+      port: ${REDIS_PORT:6379}
 
   mail:
     host: smtp.gmail.com

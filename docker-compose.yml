@@ -1,6 +1,37 @@
 version: "3.8"
 
 services:
+  enotes-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: enotes-service:latest
+    container_name: enotes-service
+    env_file:
+      - .env
+    depends_on:
+      enotes-database:
+        condition: service_healthy  # ← wait for postgres to be ready
+      redis:
+        condition: service_started
+    environment:
+      - REDIS_PORT=${REDIS_PORT}
+      - SPRING_DATA_REDIS_HOST=${REDIS_HOST}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - SPRING_EMAIL_USERNAME=${SPRING_EMAIL_USERNAME}
+      - SPRING_EMAIL_PASSWORD=${SPRING_EMAIL_PASSWORD}
+      - AWS_S3_BUCKET=${AWS_S3_BUCKET}
+      - AWS_S3_REGION=${AWS_S3_REGION}
+      - LOCAL_STACK_HOST=${LOCAL_STACK_HOST}
+      - GEMINI_API_URL=${GEMINI_API_URL}
+    ports:
+      - "8080:8080"
+
   enotes-database:
     image: postgres:16
     container_name: enotes-db
