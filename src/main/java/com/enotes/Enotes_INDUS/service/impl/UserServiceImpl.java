@@ -15,6 +15,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.compress.PasswordRequiredException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
@@ -38,7 +40,11 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private EmailService emailService;
 
+    @Value("${app.frontend-url}")
+    private String frontendUrl;
+
     @Override
+    @CacheEvict(cacheNames = "UserSecurity", key = "#email")
     public Boolean changePassword(PasswordChangeRequest passwordChangeRequest) {
         log.info("UserServiceImpl : changePassword() : Start ");
         User loggedInUser = CommonUtil.getLoggedInUser();
@@ -81,20 +87,13 @@ public class UserServiceImpl implements UserService {
                         "Your account requested for password reset.<br><br>" +
                         "Click the link below to reset your password:<br>" +
                         "<p><a href='[[url]]'>Reset my password</a></p>" +
-//                        "<a href='[[url]]'>Click Here!!!</a><br><br>" +
                         "Thank you!";
 
-        String frontendUrl = "http://localhost:5173";
         String verifyUrl = UriComponentsBuilder
                 .fromHttpUrl(frontendUrl + "/reset-password")
                 .queryParam("uid", user.getId())
                 .queryParam("resetCode", user.getAccountStatus().getPasswordResetToken())
                 .toUriString();
-
-//        String verifyUrl= UriComponentsBuilder.fromHttpUrl(url+"/api/v1/home/email-verify")
-//                .queryParam("uid", user.getId())
-//                .queryParam("resetCode", user.getAccountStatus().getPasswordResetToken())
-//                .toUriString();
 
         msg = msg.replace("[[firstname]]", user.getFirstName());
         msg = msg.replace("[[lastname]]", user.getLastName());
@@ -108,9 +107,7 @@ public class UserServiceImpl implements UserService {
         emailRequest.setMessage(msg);
 
         emailService.sendEmail(emailRequest);
-
     }
-
 
     @Override
     public void verifyReset(Integer uid, String resetCode) throws PasswordRequiredException, ResourceNotFound {
@@ -148,17 +145,12 @@ public class UserServiceImpl implements UserService {
             if(!StringUtils.hasText(userCode)){
                 throw new IllegalArgumentException("LINK EXPIRED");
             }
-
             if(!userCode.equals(resetCode)){
             throw new IllegalArgumentException("INVALID LINK");
-
             }
         }else{
             throw new IllegalArgumentException("INVALID TOKEN");
         }
-
-
-
     }
 
     @Override

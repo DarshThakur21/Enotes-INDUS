@@ -62,6 +62,9 @@ public class RedisConfig {
         cacheConfigs.put("SingleNote",
                 defaultConfig.entryTtl(Duration.ofMinutes(30)));  // longer - individual notes change less
 
+        cacheConfigs.put("UserSecurity",
+                defaultConfig.entryTtl(Duration.ofMinutes(30)));
+
         return RedisCacheManager.builder(factory)
                 .cacheDefaults(defaultConfig)
                 .withInitialCacheConfigurations(cacheConfigs)

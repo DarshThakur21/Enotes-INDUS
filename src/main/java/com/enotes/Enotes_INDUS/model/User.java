@@ -1,5 +1,6 @@
 package com.enotes.Enotes_INDUS.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -17,6 +18,7 @@ import java.util.Set;
 @NoArgsConstructor
 //@EntityListeners(AuditingEntityListener.class)
 @Table(name = "users")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class User {
 
 

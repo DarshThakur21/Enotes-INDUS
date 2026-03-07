@@ -100,8 +100,11 @@ public static String getUrl(HttpServletRequest request) {
         try {
 
         CustomUserDetails loggedUser= (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-        return loggedUser.getUser();
+            User user = new User();
+            user.setId(loggedUser.getUserId());
+            user.setEmail(loggedUser.getUsername());
+            user.setPassword(loggedUser.getPassword());
+            return user;
         }catch (Exception e){
             e.printStackTrace();
             throw e;
