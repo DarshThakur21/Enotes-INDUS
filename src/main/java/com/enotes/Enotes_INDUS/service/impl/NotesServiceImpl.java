@@ -19,13 +19,17 @@ import org.apache.commons.io.FilenameUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
@@ -83,9 +87,17 @@ public class NotesServiceImpl implements NotesService {
     @Value("${aws.s3.bucket}")
     private String S3bucket;
 
+    @Autowired
+    private RedisCacheManager cacheManager;
+
+
 
     @Override
-    @CacheEvict(cacheNames = "UserNotes", allEntries = true)
+    @Caching(evict = {
+            @CacheEvict(cacheNames = "UserNotes", allEntries = true),
+            @CacheEvict(cacheNames = "UserRecycleBinNotes", allEntries = true),
+            @CacheEvict(cacheNames = "SingleNote", allEntries = true)  // all since bulk delete
+    })
     public Boolean saveNotes(String notesString, MultipartFile file) throws Exception {
         log.info("NotesServiceImpl : saveNotes() : Start");
         ObjectMapper objectMapper=new ObjectMapper();
@@ -108,11 +120,7 @@ public class NotesServiceImpl implements NotesService {
 
 //category valdation
         checkCategoryExist(notesDto.getCategory());
-//        Optional<Notes> noteExists=notesRepository.findById(notesDto.getId());
-//        if(noteExists.isPresent()){
-//            throw new ExistDataException("note already exist");
-//
-//        }
+
         log.info("Creating new note, validating category & title");
         validations.notesValidation(notesDto);
         Boolean noteExist=notesRepository.existsByTitleAndCategoryId(notesDto.getTitle(), notesDto.getCategory().getId());
@@ -120,7 +128,6 @@ public class NotesServiceImpl implements NotesService {
             log.error("Duplicate note  found");
             throw new ExistDataException("note already exist");
         }
-
 
         Notes notes=mapper.map(notesDto, Notes.class);
 
@@ -130,17 +137,27 @@ public class NotesServiceImpl implements NotesService {
             notes.setFileDetails(fileDetails);
         }else{
             if(ObjectUtils.isEmpty(notesDto.getId())){
-//                updateNotes(notesDto,file);
             notes.setFileDetails(null );
-
             }
-
         }
 
        Notes savedNotes= notesRepository.save(notes);
+
+        cacheIndividualNote(savedNotes);
         log.info("NotesServiceImpl : saveNotes() : End (Saved)");
     return  !ObjectUtils.isEmpty(savedNotes);
     }
+
+    private void cacheIndividualNote(Notes note) {
+        NotesDto dto = mapper.map(note, NotesDto.class);
+        // Spring cache doesn't let us call @Cacheable programmatically,
+        // so we use the cache manager directly
+        Cache cache = cacheManager.getCache("SingleNote");
+        if (cache != null) {
+            cache.put(note.getId(), dto);
+        }
+    }
+
 
 
 
@@ -317,14 +334,17 @@ public class NotesServiceImpl implements NotesService {
     }
 
     @Override
-    @CacheEvict(cacheNames = "UserNotes",  allEntries = true)
+    @Caching(evict = {
+            @CacheEvict(cacheNames = "UserNotes", allEntries = true),
+            @CacheEvict(cacheNames = "UserRecycleBinNotes", allEntries = true),
+            @CacheEvict(cacheNames = "SingleNote", allEntries = true)
+    })
     public void deleteNotes(Integer id) throws ResourceNotFound {
         log.info("NotesServiceImpl : deleteNotes() : Start");
         Notes existNotes= notesRepository.findById(id).orElseThrow(()-> {
             log.error("Invalid notes id: {}", id);
             return  new ResourceNotFound("Notes id invalid");
         });
-
 
         existNotes.setIsDeleted(Boolean.TRUE);
         existNotes.setDeletedOn(new Date());
@@ -336,6 +356,11 @@ public class NotesServiceImpl implements NotesService {
 
 
     @Override
+    @Caching(evict = {
+            @CacheEvict(cacheNames = "UserNotes", allEntries = true),
+            @CacheEvict(cacheNames = "UserRecycleBinNotes", allEntries = true),
+            @CacheEvict(cacheNames = "SingleNote", allEntries = true)
+    })
     public void restoreNote(Integer id) throws ResourceNotFound {
         log.info("NotesServiceImpl : restoreNote() : Start");
 
@@ -369,6 +394,11 @@ public class NotesServiceImpl implements NotesService {
 
 
     @Override
+    @Caching(evict = {
+            @CacheEvict(cacheNames = "UserNotes", allEntries = true),
+            @CacheEvict(cacheNames = "UserRecycleBinNotes", allEntries = true),
+            @CacheEvict(cacheNames = "SingleNote", allEntries = true)
+    })
     public void deleteNotesFromRecycle(Integer id) throws ResourceNotFound {
         log.info("NotesServiceImpl : deleteNotesFromRecycle() : Start");
 
@@ -387,6 +417,11 @@ public class NotesServiceImpl implements NotesService {
     }
 
     @Override
+    @Caching(evict = {
+            @CacheEvict(cacheNames = "UserNotes", allEntries = true),
+            @CacheEvict(cacheNames = "UserRecycleBinNotes", allEntries = true),
+            @CacheEvict(cacheNames = "SingleNote", allEntries = true)
+    })
     public void deleteAllFromRecycle(int userId) {
         log.info("NotesServiceImpl : deleteAllFromRecycle() : Start");
 
