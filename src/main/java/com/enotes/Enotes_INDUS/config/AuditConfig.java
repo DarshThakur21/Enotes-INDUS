@@ -8,12 +8,9 @@ import java.util.Optional;
 
 public class AuditConfig implements AuditorAware<Integer> {
 
-
     @Override
     public Optional<Integer> getCurrentAuditor() {
-//        currently hardcoded but lateron will edit it with using user
         User userLogged= CommonUtil.getLoggedInUser();
-
         return Optional.of(userLogged.getId());
     }
 }

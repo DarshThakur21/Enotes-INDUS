@@ -1,6 +1,8 @@
 package com.enotes.Enotes_INDUS.dto;
 
 import com.enotes.Enotes_INDUS.model.enums.Status;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.*;
 
 import java.util.Date;
@@ -11,6 +13,8 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 public class TodoDto {
     private Integer id;
     private String title;

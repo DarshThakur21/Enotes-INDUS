@@ -1,6 +1,9 @@
 package com.enotes.Enotes_INDUS.config;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -40,6 +43,12 @@ public class RedisConfig {
     public RedisCacheManager cacheManager(RedisConnectionFactory factory) {
         GenericJackson2JsonRedisSerializer serializer = new GenericJackson2JsonRedisSerializer();
 
+        ObjectMapper todoObjectMapper = new ObjectMapper();
+        todoObjectMapper.registerModule(new JavaTimeModule());
+        todoObjectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        GenericJackson2JsonRedisSerializer todoSerializer =
+                new GenericJackson2JsonRedisSerializer(todoObjectMapper);
+
         RedisCacheConfiguration defaultConfig = RedisCacheConfiguration.defaultCacheConfig()
                 .entryTtl(Duration.ofMinutes(10))  // default TTL
                 .serializeKeysWith(
@@ -49,6 +58,18 @@ public class RedisConfig {
                         RedisSerializationContext.SerializationPair
                                 .fromSerializer(serializer))
                 .disableCachingNullValues();
+
+        // ← Separate config for todos using todoSerializer
+        RedisCacheConfiguration todoConfig = RedisCacheConfiguration.defaultCacheConfig()
+                .entryTtl(Duration.ofMinutes(30))
+                .serializeKeysWith(
+                        RedisSerializationContext.SerializationPair
+                                .fromSerializer(new StringRedisSerializer()))
+                .serializeValuesWith(
+                        RedisSerializationContext.SerializationPair
+                                .fromSerializer(todoSerializer))  // ← different serializer
+                .disableCachingNullValues();
+
 
         // Per-cache TTL config
         Map<String, RedisCacheConfiguration> cacheConfigs = new HashMap<>();
@@ -64,6 +85,8 @@ public class RedisConfig {
 
         cacheConfigs.put("UserSecurity",
                 defaultConfig.entryTtl(Duration.ofMinutes(30)));
+
+        cacheConfigs.put("UserTodos", todoConfig);
 
         return RedisCacheManager.builder(factory)
                 .cacheDefaults(defaultConfig)

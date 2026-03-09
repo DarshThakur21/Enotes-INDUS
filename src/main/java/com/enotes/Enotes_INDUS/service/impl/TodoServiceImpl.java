@@ -13,6 +13,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
+import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
@@ -26,21 +30,26 @@ import java.util.Optional;
 @Service
 public class TodoServiceImpl implements TodoService {
 
-
     @Autowired
     private TodoRepo todoRepo;
 
     @Autowired
     private ModelMapper modelMapper;
 
-
     @Autowired
     private Validations validations;
 
-
+    @Autowired
+    private RedisCacheManager cacheManager;
 
 
     @Override
+    @Caching(evict = {
+            @CacheEvict(cacheNames = "UserTodos", key = "#userId + ':user'"),
+            @CacheEvict(cacheNames = "UserTodos", key = "#userId + ':status:PENDING'"),
+            @CacheEvict(cacheNames = "UserTodos", key = "#userId + ':status:DONE'"),
+            @CacheEvict(cacheNames = "UserTodos", key = "#userId + ':status:IN_PROGRESS'")
+    })
     public Boolean saveTodo(TodoDto todoDto) throws ResourceNotFound {
 //        ObjectMapper objectMapper =new ObjectMapper();
         log.info("TodoServiceImpl : saveTodo() : Start");
@@ -65,7 +74,6 @@ public class TodoServiceImpl implements TodoService {
         log.info("TodoServiceImpl : saveTodo() : End");
         return true;
 
-
     }
 
     private Todo updateTodos(TodoDto todoDto) throws ResourceNotFound {
@@ -81,6 +89,7 @@ public class TodoServiceImpl implements TodoService {
 
 
     @Override
+    @Cacheable(cacheNames = "UserTodos", key = "#todoId + ':single'")
     public TodoDto getTodoById(Integer todoId)  {
         try{
             log.info("TodoServiceImpl : getTodoById() : Start");
@@ -103,6 +112,7 @@ public class TodoServiceImpl implements TodoService {
 
 
     @Override
+    @Cacheable(cacheNames = "UserTodos", key = "#userId + ':user'")
     public List<TodoDto> getTodoByUser() {
         try {
             log.info("TodoServiceImpl : getTodoByUser() : Start");
@@ -123,6 +133,7 @@ public class TodoServiceImpl implements TodoService {
     }
 
     @Override
+    @Cacheable(cacheNames = "UserTodos", key = "#userId + ':status:' + #status.toUpperCase()")
     public List<TodoDto> getByStatus(String status) {
         log.info("TodoServiceImpl : getByStatus() : Start");
         Status statusValue=Status.valueOf(status.toUpperCase());
@@ -135,6 +146,13 @@ public class TodoServiceImpl implements TodoService {
     }
 
     @Override
+    @Caching(evict = {
+            @CacheEvict(cacheNames = "UserTodos", key = "#todoId + ':single'"),
+            @CacheEvict(cacheNames = "UserTodos", key = "#userId + ':user'"),
+            @CacheEvict(cacheNames = "UserTodos", key = "#userId + ':status:PENDING'"),
+            @CacheEvict(cacheNames = "UserTodos", key = "#userId + ':status:DONE'"),
+            @CacheEvict(cacheNames = "UserTodos", key = "#userId + ':status:IN_PROGRESS'")
+    })
     public void deleteTodo(Integer todoId) {
         Todo todo=todoRepo.findById(todoId).orElseThrow(()->new RuntimeException("Todo not found"));
         if(ObjectUtils.isEmpty(todo)){
@@ -144,6 +162,13 @@ public class TodoServiceImpl implements TodoService {
     }
 
     @Override
+    @Caching(evict = {
+            @CacheEvict(cacheNames = "UserTodos", key = "#id + ':single'"),
+            @CacheEvict(cacheNames = "UserTodos", key = "#userId + ':user'"),
+            @CacheEvict(cacheNames = "UserTodos", key = "#userId + ':status:PENDING'"),
+            @CacheEvict(cacheNames = "UserTodos", key = "#userId + ':status:DONE'"),
+            @CacheEvict(cacheNames = "UserTodos", key = "#userId + ':status:IN_PROGRESS'")
+    })
     public Boolean changeStatus(Integer id, Status status) {
         Todo todo=todoRepo.findById(id).orElseThrow(()->new RuntimeException("Todo not found"));
         if(ObjectUtils.isEmpty(todo)){
