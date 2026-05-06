@@ -81,14 +81,52 @@ email:
     from: dummysingh2001002@gmail.com
 
 
+#aws:
+#  s3:
+#    bucket: ${AWS_S3_BUCKET}
+#    endpoint: ${LOCAL_STACK_HOST}
+#    region: ${AWS_S3_REGION}
+#    accessKey: test
+#    secretKey: test
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: aws
+
+  datasource:
+    url: jdbc:postgresql://${RDS_ENDPOINT}:5432/${DB_NAME}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc:
+          time_zone: UTC
+
+  data:
+    redis:
+      host: ${REDIS_ENDPOINT}
+      port: 6379
+      timeout: 2000ms
+
 aws:
   s3:
-    bucket: ${AWS_S3_BUCKET}
-    endpoint: ${LOCAL_STACK_HOST}
-    region: ${AWS_S3_REGION}
-    accessKey: test
-    secretKey: test
-
+    bucket: ${S3_BUCKET_NAME}
+    region: ${AWS_REGION}
+    accessKey: ${AWS_ACCESS_KEY_ID}
+    secretKey: ${AWS_SECRET_ACCESS_KEY}
 
 
 
@@ -126,87 +164,87 @@ spring:
 
 
 
-
-
-spring:
-  config:
-    activate:
-      on-profile: prod
-
-  datasource:
-    url: jdbc:mysql://localhost:3306/enotes_prod
-    username: root
-    password: "2106@2308Ud"
-    driver-class-name: com.mysql.cj.jdbc.Driver
-
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: true
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.MySQL8Dialect
-
-  devtools:
-    restart:
-      enabled: true
-    livereload:
-      enabled: true
-
----
-
-spring:
-  config:
-    activate:
-      on-profile: test
-
-  datasource:
-    url: jdbc:mysql://localhost:3306/enotes_test
-    username: root
-    password: "2106@2308Ud"
-    driver-class-name: com.mysql.cj.jdbc.Driver
-
-  jpa:
-    hibernate:
-      ddl-auto: none
-    show-sql: true
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.MySQL8Dialect
-
-  devtools:
-    restart:
-      enabled: true
-    livereload:
-      enabled: true
-
----
-
-
-
-spring:
-  config:
-    activate:
-      on-profile: uat
-
-  datasource:
-    url: jdbc:mysql://localhost:3306/enotes_uat
-    username: root
-    password: "2106@2308Ud"
-    driver-class-name: com.mysql.cj.jdbc.Driver
-
-  jpa:
-    hibernate:
-      ddl-auto: none
-    show-sql: true
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.MySQL8Dialect
-
-  devtools:
-    restart:
-      enabled: true
-    livereload:
-      enabled: true
+#
+#
+#spring:
+#  config:
+#    activate:
+#      on-profile: prod
+#
+#  datasource:
+#    url: jdbc:mysql://localhost:3306/enotes_prod
+#    username: root
+#    password: "2106@2308Ud"
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#
+#  jpa:
+#    hibernate:
+#      ddl-auto: update
+#    show-sql: true
+#    properties:
+#      hibernate:
+#        dialect: org.hibernate.dialect.MySQL8Dialect
+#
+#  devtools:
+#    restart:
+#      enabled: true
+#    livereload:
+#      enabled: true
+#
+#---
+#
+#spring:
+#  config:
+#    activate:
+#      on-profile: test
+#
+#  datasource:
+#    url: jdbc:mysql://localhost:3306/enotes_test
+#    username: root
+#    password: "2106@2308Ud"
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#
+#  jpa:
+#    hibernate:
+#      ddl-auto: none
+#    show-sql: true
+#    properties:
+#      hibernate:
+#        dialect: org.hibernate.dialect.MySQL8Dialect
+#
+#  devtools:
+#    restart:
+#      enabled: true
+#    livereload:
+#      enabled: true
+#
+#---
+#
+#
+#
+#spring:
+#  config:
+#    activate:
+#      on-profile: uat
+#
+#  datasource:
+#    url: jdbc:mysql://localhost:3306/enotes_uat
+#    username: root
+#    password: "2106@2308Ud"
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#
+#  jpa:
+#    hibernate:
+#      ddl-auto: none
+#    show-sql: true
+#    properties:
+#      hibernate:
+#        dialect: org.hibernate.dialect.MySQL8Dialect
+#
+#  devtools:
+#    restart:
+#      enabled: true
+#    livereload:
+#      enabled: true
 
 

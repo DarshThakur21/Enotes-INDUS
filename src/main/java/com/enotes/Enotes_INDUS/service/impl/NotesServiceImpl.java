@@ -214,22 +214,15 @@ public class NotesServiceImpl implements NotesService {
 //                saveFile.mkdir();
 //            }
             String storepath=uploadPath.concat(uploadFileName);
-            long upload=Files.copy(file.getInputStream(), Paths.get(storepath)); //converting the files to store into the folder
-            if(upload!=0){
                 FileDetails fileDetails=new FileDetails();
                 fileDetails.setOriginalFileName(originalFileName);
                 fileDetails.setDisplayFileName(displayname(originalFileName));
-                fileDetails.setUploadFileName(uploadFileName);
+                fileDetails.setUploadFileName(S3Key);
                 fileDetails.setFileSize(file.getSize());
                 fileDetails.setFilePath(S3Key);
                 FileDetails savedFileDetails= fileRepository.save(fileDetails);
 
                 return  savedFileDetails;
-            }else{
-                return null;
-            }
-
-
 
         }
 
@@ -408,6 +401,7 @@ public class NotesServiceImpl implements NotesService {
 
                 log.info("Delete successful");
                 log.info("NotesServiceImpl : deleteNotesFromRecycle() : End");
+                deleteFileFromS3OnRecycleDelete(existNotes);
                 notesRepository.deleteById(id);
             }else{
 
@@ -427,6 +421,7 @@ public class NotesServiceImpl implements NotesService {
 
         List<Notes> deleteNoteList=notesRepository.findByCreatedByAndIsDeletedTrue(userId);
         if(!CollectionUtils.isEmpty(deleteNoteList)){
+                deleteNoteList.forEach(this::deleteFileFromS3OnRecycleDelete);
             notesRepository.deleteAll(deleteNoteList);
             log.info("Delete successful");
             log.info("NotesServiceImpl : deleteAllFromRecycle() : End");
@@ -550,19 +545,30 @@ public class NotesServiceImpl implements NotesService {
             String originalFileName = file.getOriginalFilename();
             String extension = FilenameUtils.getExtension(originalFileName);
             String uniqueName = UUID.randomUUID().toString() + "." + extension;
+            int userId=CommonUtil.getLoggedInUser().getId();
+
+            String S3Key="users/"+userId+"/uploadNotes/"+uniqueName+"."+extension;
+            s3Client.putObject(
+                    PutObjectRequest.builder()
+                            .bucket(S3bucket)
+                            .key(S3Key)
+                            .contentType(file.getContentType())
+                            .build(),
+                    RequestBody.fromInputStream(file.getInputStream(),file.getSize())
+            );
 
             // 3. Resolve the target path correctly
             // resolve() is better than string concatenation as it manages separators automatically
-            Path targetPath = rootPath.resolve(uniqueName);
-
-            // 4. PHYSICAL UPLOAD: Copy the file stream to the destination
-            Files.copy(file.getInputStream(), targetPath);
+//            Path targetPath = rootPath.resolve(uniqueName);
+//
+//            // 4. PHYSICAL UPLOAD: Copy the file stream to the destination
+//            Files.copy(file.getInputStream(), targetPath);
 
             // 5. Build and Save metadata to DB
             FileDetails fileDetails = FileDetails.builder()
                     .displayFileName(originalFileName)
-                    .filePath(targetPath.toAbsolutePath().toString()) // Store the full absolute path
-                    .uploadFileName(uniqueName)
+                    .filePath(S3Key) // Store the full absolute path
+                    .uploadFileName(S3Key)
                     .fileSize(file.getSize())
                     .originalFileName(originalFileName)
                     .build();
@@ -582,25 +588,34 @@ public class NotesServiceImpl implements NotesService {
           Optional<FileDetails> fileDetailsOptional =fileRepository.findById(id);
           FileDetails fileDetails=fileDetailsOptional.get();
 
+          byte[] fileData=s3Client.getObjectAsBytes(
+                  GetObjectRequest.builder()
+                          .bucket(S3bucket)
+                          .key(fileDetails.getFilePath())
+                          .build()
+          ).asByteArray();
+          if (fileData == null || fileData.length == 0) {
+              log.error("S3 file is empty for key: {}", fileDetails.getFilePath());
+              throw new RuntimeException("Retrieved file data is empty from S3");
+          }
+
           Path path=Paths.get(uploadPath).resolve(fileDetails.getUploadFileName()).toAbsolutePath();
 
-          log.info("System looking for file at: {}", path);
+          log.info("System looking for file at: {}", fileDetails.getFilePath());
 
           if (!Files.exists(path)) {
               // Log the parent directory content to see what's actually there
               log.error("File MISSING at path: {}", path);
               throw new RuntimeException("Physical file not found at: " + path);
           }
-
+          log.info("File downloaded successfully for ID: {}", id);
 
           return FileDownloadDto.builder()
-                  .fileData(Files.readAllBytes(path))
+                  .fileData(fileData)
                   .fileDetails(fileDetails)
                   .build();
 
       } catch (RuntimeException e) {
-          throw new RuntimeException(e);
-      } catch (IOException e) {
           throw new RuntimeException(e);
       }
 
@@ -635,6 +650,18 @@ public class NotesServiceImpl implements NotesService {
         log.info("NotesServiceImpl : getFileDetails() : End");
 
         return fileDetails;
+    }
+
+    private void deleteFileFromS3OnRecycleDelete(Notes notes ){
+        if(notes.getFileDetails()!=null && notes.getFileDetails().getFilePath()!=null){
+            try{
+                s3Client.deleteObject(b->b.bucket(S3bucket).key(notes.getFileDetails().getFilePath()));
+                log.info("Deleted S3 object: {}", notes.getFileDetails().getFilePath());
+            } catch (Exception e) {
+                log.warn("Could not delete S3 object {}: {}", notes.getFileDetails().getFilePath(), e.getMessage());
+                throw new RuntimeException(e);
+            }
+        }
     }
 
 }
