@@ -18,7 +18,7 @@ spring:
   application:
     name: Enotes-INDUS
   profiles:
-    active: dev
+    active: aws
 
   servlet:
     multipart:
@@ -28,8 +28,6 @@ spring:
   cache:
     type: redis
     redis:
-      host: enotes-redis
-      port: ${REDIS_PORT}
       time-to-live: 600000
   data:
     redis:
@@ -78,7 +76,7 @@ file:
 
 email:
   send:
-    from: dummysingh2001002@gmail.com
+    from: ${SPRING_EMAIL_USERNAME}
 
 
 #aws:
@@ -97,8 +95,8 @@ spring:
       on-profile: aws
 
   datasource:
-    url: jdbc:postgresql://${RDS_ENDPOINT}:5432/${DB_NAME}
-    username: ${DB_USER}
+    url: jdbc:postgresql://${RDS_ENDPOINT}:5432/${POSTGRES_DB}
+    username: ${RDS_DB_USER}
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
     hikari:
@@ -108,7 +106,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
-    show-sql: false
+    show-sql: true
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
@@ -127,6 +125,7 @@ aws:
     region: ${AWS_REGION}
     accessKey: ${AWS_ACCESS_KEY_ID}
     secretKey: ${AWS_SECRET_ACCESS_KEY}
+    endpoint: ${S3_ENDPOINT_URL}
 
 
 

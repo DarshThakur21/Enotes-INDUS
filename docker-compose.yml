@@ -59,14 +59,17 @@ services:
       - "${REDIS_PORT}:6379"
 
   localstack:
-    image: localstack/localstack:latest
+    image: localstack/localstack-pro:latest
     container_name: localstack
     ports:
       - "4566:4566"   # Main LocalStack gateway
+      - "4510-4559:4510-4559"
     environment:
+      - LOCALSTACK_AUTH_TOKEN=${LOCALSTACK_AUTH_TOKEN}
       - SERVICES=s3,lambda,apigateway,ec2
       - DEFAULT_REGION=us-east-1
       - DEBUG=1
       - PERSISTENCE=1
     volumes:
-      - ${LOCAL_STACK_DATA}:/var/lib/localstack"
+      - ${LOCAL_STACK_DATA}:/var/lib/localstack
+    restart: unless-stopped
